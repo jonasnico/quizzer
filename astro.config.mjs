@@ -3,8 +3,8 @@ import { defineConfig } from "astro/config";
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
-  site: 'https://[YOUR_USERNAME].github.io',
-  base: '/trivia',
+  site: 'https://jonasnico.github.io',
+  base: '/quizzer',
   vite: {
     plugins: [tailwindcss()],
   },
