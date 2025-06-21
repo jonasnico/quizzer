@@ -305,22 +305,36 @@ const baseUrl = import.meta.env.BASE_URL;
     }
 
     answerOptions.innerHTML = "";
+    const hasAnswered =
+      quizState.userAnswers[quizState.currentQuestionIndex] !== "";
 
     options.forEach((option, index) => {
       const button = document.createElement("button");
       button.className =
         "w-full text-left p-4 border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors";
       button.textContent = option;
-      button.addEventListener("click", () => selectAnswer(option));
+
+      if (!hasAnswered) {
+        button.addEventListener("click", () => selectAnswer(option));
+      } else {
+        button.disabled = true;
+        button.style.cursor = "not-allowed";
+      }
 
       if (quizState.userAnswers[quizState.currentQuestionIndex] === option) {
         if (option === question.correct_answer) {
           button.className =
-            "w-full text-left p-4 border-2 border-green-500 bg-green-50 rounded-lg";
+            "w-full text-left p-4 border-2 border-green-500 bg-green-50 rounded-lg cursor-not-allowed";
         } else {
           button.className =
-            "w-full text-left p-4 border-2 border-red-500 bg-red-50 rounded-lg";
+            "w-full text-left p-4 border-2 border-red-500 bg-red-50 rounded-lg cursor-not-allowed";
         }
+      } else if (hasAnswered && option === question.correct_answer) {
+        button.className =
+          "w-full text-left p-4 border-2 border-green-500 bg-green-50 rounded-lg cursor-not-allowed";
+      } else if (hasAnswered) {
+        button.className =
+          "w-full text-left p-4 border border-gray-300 rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed";
       }
 
       answerOptions.appendChild(button);
@@ -330,20 +344,28 @@ const baseUrl = import.meta.env.BASE_URL;
   function selectAnswer(selectedAnswer: string) {
     const question = questions[quizState.currentQuestionIndex];
 
+    if (quizState.userAnswers[quizState.currentQuestionIndex] !== "") {
+      return;
+    }
+
     quizState.userAnswers[quizState.currentQuestionIndex] = selectedAnswer;
 
-    if (
-      selectedAnswer === question.correct_answer &&
-      quizState.score <= quizState.currentQuestionIndex
-    ) {
+    if (selectedAnswer === question.correct_answer) {
       quizState.score++;
     }
 
     showFeedback(question, selectedAnswer);
-
     createAnswerOptions(question);
     updateNextButton();
     scoreDisplay.textContent = `${quizState.score}/${quizState.currentQuestionIndex + 1}`;
+  }
+
+  function disableAnswerOptions() {
+    const allButtons = answerOptions.querySelectorAll("button");
+    allButtons.forEach((button) => {
+      button.disabled = true;
+      button.style.cursor = "not-allowed";
+    });
   }
 
   function showFeedback(question: TriviaQuestion, selectedAnswer: string) {
