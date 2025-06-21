@@ -112,7 +112,7 @@ const baseUrl = import.meta.env.BASE_URL;
   </div>
 
   <div id="review-section" class="hidden">
-    <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-6 mt-2">
       <div class="flex justify-between items-center mb-6">
         <div>
           <h2 class="text-2xl font-bold text-gray-800">Quiz Review</h2>
@@ -120,13 +120,15 @@ const baseUrl = import.meta.env.BASE_URL;
         </div>
         <div class="text-right">
           <p class="text-sm text-gray-600">Final Score</p>
-          <p id="review-final-score" class="text-2xl font-bold text-indigo-600">0/0</p>
+          <p id="review-final-score" class="text-2xl font-bold text-indigo-600">
+            0/0
+          </p>
         </div>
       </div>
-      
+
       <button
         id="back-to-quiz-button"
-        class="mb-6 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        class="mb-8 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500"
       >
         ← Back to Quiz
       </button>
@@ -242,11 +244,21 @@ const baseUrl = import.meta.env.BASE_URL;
   ) as HTMLButtonElement;
   const quizLoading = document.getElementById("quiz-loading") as HTMLDivElement;
   const quizError = document.getElementById("quiz-error") as HTMLDivElement;
-  const reviewSection = document.getElementById("review-section") as HTMLDivElement;
-  const reviewFinalScore = document.getElementById("review-final-score") as HTMLParagraphElement;
-  const backToQuizButton = document.getElementById("back-to-quiz-button") as HTMLButtonElement;
-  const reviewQuestions = document.getElementById("review-questions") as HTMLDivElement;
-  const newQuizFromReviewButton = document.getElementById("new-quiz-from-review-button") as HTMLButtonElement;
+  const reviewSection = document.getElementById(
+    "review-section"
+  ) as HTMLDivElement;
+  const reviewFinalScore = document.getElementById(
+    "review-final-score"
+  ) as HTMLParagraphElement;
+  const backToQuizButton = document.getElementById(
+    "back-to-quiz-button"
+  ) as HTMLButtonElement;
+  const reviewQuestions = document.getElementById(
+    "review-questions"
+  ) as HTMLDivElement;
+  const newQuizFromReviewButton = document.getElementById(
+    "new-quiz-from-review-button"
+  ) as HTMLButtonElement;
 
   window.addEventListener("DOMContentLoaded", initializeQuiz);
 
@@ -275,7 +287,7 @@ const baseUrl = import.meta.env.BASE_URL;
         showFeedback: false,
       };
 
-      shuffledOptions = questions.map(question => {
+      shuffledOptions = questions.map((question) => {
         if (question.type === "boolean") {
           return ["True", "False"];
         } else {
@@ -499,34 +511,34 @@ const baseUrl = import.meta.env.BASE_URL;
   function showReview() {
     resultsModal.style.display = "none";
     resultsModal.classList.add("hidden");
-    
+
     quizContainer.classList.add("hidden");
     reviewSection.classList.remove("hidden");
-    
+
     reviewFinalScore.textContent = `${quizState.score}/${questions.length}`;
-    
+
     displayAllQuestions();
   }
 
   function hideReview() {
     reviewSection.classList.add("hidden");
     quizContainer.classList.remove("hidden");
-    
+
     resultsModal.style.display = "flex";
     resultsModal.classList.remove("hidden");
   }
 
   function displayAllQuestions() {
     reviewQuestions.innerHTML = "";
-    
+
     questions.forEach((question, index) => {
       const questionDiv = document.createElement("div");
       questionDiv.className = "bg-white rounded-lg shadow-lg p-6";
-      
+
       const userAnswer = quizState.userAnswers[index];
       const isCorrect = userAnswer === question.correct_answer;
       const options = shuffledOptions[index];
-      
+
       questionDiv.innerHTML = `
         <div class="flex justify-between items-start mb-4">
           <div class="flex-1">
@@ -539,9 +551,10 @@ const baseUrl = import.meta.env.BASE_URL;
             <p class="text-sm text-gray-600">${question.category}</p>
           </div>
           <div class="flex items-center">
-            ${isCorrect 
-              ? '<svg class="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>'
-              : '<svg class="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>'
+            ${
+              isCorrect
+                ? '<svg class="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>'
+                : '<svg class="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>'
             }
           </div>
         </div>
@@ -551,36 +564,42 @@ const baseUrl = import.meta.env.BASE_URL;
         </h3>
         
         <div class="space-y-2">
-          ${options.map(option => {
-            let optionClass = "p-3 border rounded-lg text-sm";
-            let optionLabel = "";
-            
-            if (option === question.correct_answer) {
-              optionClass += " border-green-500 bg-green-50 text-green-800";
-              optionLabel = " ✓ Correct Answer";
-            } else if (option === userAnswer && !isCorrect) {
-              optionClass += " border-red-500 bg-red-50 text-red-800";
-              optionLabel = " ✗ Your Answer";
-            } else {
-              optionClass += " border-gray-200 bg-gray-50 text-gray-600";
-            }
-            
-            return `<div class="${optionClass}">
+          ${options
+            .map((option) => {
+              let optionClass = "p-3 border rounded-lg text-sm";
+              let optionLabel = "";
+
+              if (option === question.correct_answer) {
+                optionClass += " border-green-500 bg-green-50 text-green-800";
+                optionLabel = " ✓ Correct Answer";
+              } else if (option === userAnswer && !isCorrect) {
+                optionClass += " border-red-500 bg-red-50 text-red-800";
+                optionLabel = " ✗ Your Answer";
+              } else {
+                optionClass += " border-gray-200 bg-gray-50 text-gray-600";
+              }
+
+              return `<div class="${optionClass}">
               <span>${option}</span>
               <span class="font-medium">${optionLabel}</span>
             </div>`;
-          }).join('')}
+            })
+            .join("")}
         </div>
         
-        ${!isCorrect && userAnswer ? `
+        ${
+          !isCorrect && userAnswer
+            ? `
           <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
             <p class="text-sm text-blue-800">
               <span class="font-medium">Explanation:</span> The correct answer is "${question.correct_answer}".
             </p>
           </div>
-        ` : ''}
+        `
+            : ""
+        }
       `;
-      
+
       reviewQuestions.appendChild(questionDiv);
     });
   }
