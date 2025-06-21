@@ -1,0 +1,246 @@
+---
+import { TRIVIA_CATEGORIES } from "../types";
+---
+
+<div class="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-8">
+  <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">
+    Configure Your Quiz
+  </h2>
+
+  <form id="quiz-config-form" class="space-y-6">
+    <div>
+      <label for="amount" class="block text-sm font-medium text-gray-700 mb-2">
+        Number of Questions
+      </label>
+      <input
+        type="range"
+        id="amount"
+        name="amount"
+        min="1"
+        max="50"
+        value="10"
+        class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+      />
+      <div class="flex justify-between text-sm text-gray-500 mt-1">
+        <span>1</span>
+        <span id="amount-display" class="font-medium text-indigo-600">10</span>
+        <span>50</span>
+      </div>
+    </div>
+
+    <div>
+      <label
+        for="category"
+        class="block text-sm font-medium text-gray-700 mb-2"
+      >
+        Category
+      </label>
+      <select
+        id="category"
+        name="category"
+        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+      >
+        <option value="">Any Category</option>
+        {
+          TRIVIA_CATEGORIES.map((category) => (
+            <option value={category.id}>{category.name}</option>
+          ))
+        }
+      </select>
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-2">
+        Difficulty
+      </label>
+      <div class="flex space-x-4">
+        <label class="flex items-center">
+          <input
+            type="radio"
+            name="difficulty"
+            value=""
+            checked
+            class="form-radio h-4 w-4 text-indigo-600"
+          />
+          <span class="ml-2 text-sm text-gray-700">Any</span>
+        </label>
+        <label class="flex items-center">
+          <input
+            type="radio"
+            name="difficulty"
+            value="easy"
+            class="form-radio h-4 w-4 text-indigo-600"
+          />
+          <span class="ml-2 text-sm text-gray-700">Easy</span>
+        </label>
+        <label class="flex items-center">
+          <input
+            type="radio"
+            name="difficulty"
+            value="medium"
+            class="form-radio h-4 w-4 text-indigo-600"
+          />
+          <span class="ml-2 text-sm text-gray-700">Medium</span>
+        </label>
+        <label class="flex items-center">
+          <input
+            type="radio"
+            name="difficulty"
+            value="hard"
+            class="form-radio h-4 w-4 text-indigo-600"
+          />
+          <span class="ml-2 text-sm text-gray-700">Hard</span>
+        </label>
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-2">
+        Question Type
+      </label>
+      <div class="flex space-x-4">
+        <label class="flex items-center">
+          <input
+            type="radio"
+            name="type"
+            value=""
+            checked
+            class="form-radio h-4 w-4 text-indigo-600"
+          />
+          <span class="ml-2 text-sm text-gray-700">Any</span>
+        </label>
+        <label class="flex items-center">
+          <input
+            type="radio"
+            name="type"
+            value="multiple"
+            class="form-radio h-4 w-4 text-indigo-600"
+          />
+          <span class="ml-2 text-sm text-gray-700">Multiple Choice</span>
+        </label>
+        <label class="flex items-center">
+          <input
+            type="radio"
+            name="type"
+            value="boolean"
+            class="form-radio h-4 w-4 text-indigo-600"
+          />
+          <span class="ml-2 text-sm text-gray-700">True/False</span>
+        </label>
+      </div>
+    </div>
+
+    <button
+      type="submit"
+      class="w-full bg-indigo-600 text-white py-3 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors font-medium"
+    >
+      Start Quiz
+    </button>
+  </form>
+
+  <div id="loading-state" class="hidden text-center py-8">
+    <div
+      class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"
+    >
+    </div>
+    <p class="mt-2 text-gray-600">Loading your quiz...</p>
+  </div>
+
+  <div
+    id="error-state"
+    class="hidden bg-red-50 border border-red-200 rounded-md p-4 mt-4"
+  >
+    <div class="flex">
+      <div class="flex-shrink-0">
+        <svg
+          class="h-5 w-5 text-red-400"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+            clip-rule="evenodd"></path>
+        </svg>
+      </div>
+      <div class="ml-3">
+        <h3 class="text-sm font-medium text-red-800">Error</h3>
+        <p id="error-message" class="mt-1 text-sm text-red-700"></p>
+        <button
+          id="retry-button"
+          class="mt-2 text-sm bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
+        >
+          Try Again
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { TriviaAPI } from "../utils/api";
+  import type { QuizConfig } from "../types";
+
+  const form = document.getElementById("quiz-config-form") as HTMLFormElement;
+  const amountSlider = document.getElementById("amount") as HTMLInputElement;
+  const amountDisplay = document.getElementById(
+    "amount-display"
+  ) as HTMLSpanElement;
+  const loadingState = document.getElementById(
+    "loading-state"
+  ) as HTMLDivElement;
+  const errorState = document.getElementById("error-state") as HTMLDivElement;
+  const errorMessage = document.getElementById(
+    "error-message"
+  ) as HTMLParagraphElement;
+  const retryButton = document.getElementById(
+    "retry-button"
+  ) as HTMLButtonElement;
+
+  amountSlider.addEventListener("input", () => {
+    amountDisplay.textContent = amountSlider.value;
+  });
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(form);
+    const config: QuizConfig = {
+      amount: parseInt(formData.get("amount") as string),
+      category: formData.get("category")
+        ? parseInt(formData.get("category") as string)
+        : undefined,
+      difficulty:
+        (formData.get("difficulty") as "easy" | "medium" | "hard") || undefined,
+      type: (formData.get("type") as "multiple" | "boolean") || undefined,
+    };
+
+    await startQuiz(config);
+  });
+
+  retryButton.addEventListener("click", () => {
+    errorState.classList.add("hidden");
+    form.classList.remove("hidden");
+  });
+
+  async function startQuiz(config: QuizConfig) {
+    try {
+      form.classList.add("hidden");
+      errorState.classList.add("hidden");
+      loadingState.classList.remove("hidden");
+      const questions = await TriviaAPI.fetchQuestions(config);
+
+      sessionStorage.setItem("triviaQuestions", JSON.stringify(questions));
+      sessionStorage.setItem("quizConfig", JSON.stringify(config));
+
+      window.location.href = "/quiz";
+    } catch (error) {
+      console.error("Error starting quiz:", error);
+
+      loadingState.classList.add("hidden");
+      errorState.classList.remove("hidden");
+      errorMessage.textContent =
+        error instanceof Error ? error.message : "An unexpected error occurred";
+    }
+  }
+</script>

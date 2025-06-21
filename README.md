@@ -1,37 +1,109 @@
-# Astro Starter Kit: Minimal
+# 🧠 Quizzer
 
-```sh
-npm create astro@latest -- --template minimal
-```
+An interactive trivia quiz application built with Astro and TypeScript that uses the Open Trivia Database API to provide engaging quiz experiences.
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/minimal)
-[![Open with CodeSandbox](https://assets.codesandbox.io/github/button-edit-lime.svg)](https://codesandbox.io/p/sandbox/github/withastro/astro/tree/latest/examples/minimal)
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/withastro/astro?devcontainer_path=.devcontainer/minimal/devcontainer.json)
+## ✨ Features
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+- **🎯 Customizable Quizzes**: Configure number of questions, categories, difficulty levels, and question types
+- **📚 Multiple Categories**: Choose from 25+ categories including Science, Entertainment, Sports, History, and more
+- **🎚️ Difficulty Levels**: Easy, Medium, and Hard difficulty options
+- **❓ Question Types**: Multiple choice and True/False questions
+- **⚡ Instant Feedback**: Get immediate feedback on your answers
+- **📊 Progress Tracking**: See your score and progress throughout the quiz
+- **🎉 Results Summary**: Detailed results with percentage scores and performance indicators
+- **📱 Responsive Design**: Works seamlessly on desktop and mobile devices
 
-## 🚀 Project Structure
-
-Inside of your Astro project, you'll see the following folders and files:
+## 🏗️ Project Structure
 
 ```text
 /
 ├── public/
 ├── src/
-│   └── pages/
-│       └── index.astro
+│   ├── components/
+│   │   ├── QuizConfig.astro    # Quiz configuration form
+│   │   └── QuizGame.astro      # Main quiz gameplay component
+│   ├── layouts/
+│   │   └── Layout.astro        # Base layout with Tailwind CSS
+│   ├── pages/
+│   │   ├── index.astro         # Home page with quiz configuration
+│   │   └── quiz.astro          # Quiz gameplay page
+│   ├── types/
+│   │   └── index.ts            # TypeScript type definitions
+│   ├── utils/
+│   │   └── api.ts              # API utilities and helper functions
+│   └── styles/
+│       └── global.css          # Global Tailwind CSS styles
 └── package.json
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+## 🚀 Getting Started
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+### Prerequisites
 
-Any static assets, like images, can be placed in the `public/` directory.
+- Node.js 18+
+- npm
 
-## 🧞 Commands
+### Installation
 
-All commands are run from the root of the project, from a terminal:
+1. Clone the repository
+2. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+### Development
+
+Start the development server:
+
+```bash
+npm run dev
+```
+
+Open [http://localhost:4321](http://localhost:4321) in your browser.
+
+### Build
+
+Build the application for production:
+
+```bash
+npm run build
+```
+
+Preview the production build:
+
+```bash
+npm run preview
+```
+
+## 🎮 How to Use
+
+1. **Configure Your Quiz**:
+   - Select the number of questions (1-50)
+   - Choose a category or leave as "Any Category"
+   - Pick a difficulty level or select "Any"
+   - Choose question type (Multiple Choice, True/False, or Any)
+
+2. **Take the Quiz**:
+   - Read each question carefully
+   - Select your answer from the available options
+   - Get instant feedback on whether you're correct or incorrect
+   - Navigate between questions using Previous/Next buttons
+   - Review your answers anytime
+
+3. **View Results**:
+   - See your final score and percentage
+   - Review all questions and your answers
+   - Start a new quiz with different settings
+
+## 🛠️ Technology Stack
+
+- **Framework**: [Astro](https://astro.build/) - Modern web framework
+- **Language**: TypeScript - Type-safe JavaScript
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS framework
+- **API**: [Open Trivia Database](https://opentdb.com/) - Free trivia questions API
+
+## 📋 Commands
 
 | Command                   | Action                                           |
 | :------------------------ | :----------------------------------------------- |
@@ -42,6 +114,30 @@ All commands are run from the root of the project, from a terminal:
 | `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
 | `npm run astro -- --help` | Get help using the Astro CLI                     |
 
-## 👀 Want to learn more?
+## 🎯 API Information
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+This application uses the [Open Trivia Database API](https://opentdb.com/), which provides:
+
+- 4,600+ verified trivia questions
+- 25+ categories
+- Multiple difficulty levels
+- Various question types
+- Free to use (no API key required)
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
+
+## 📄 License
+
+This project is open source and available under the MIT License.
+
+## 🙏 Acknowledgments
+
+- [Open Trivia Database](https://opentdb.com/) for providing the trivia questions
+- [Astro](https://astro.build/) for the amazing web framework
+- [Tailwind CSS](https://tailwindcss.com/) for the utility-first styling approach

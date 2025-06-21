@@ -1,5 +1,11 @@
-// @ts-check
-import { defineConfig } from 'astro/config';
+import { defineConfig } from "astro/config";
 
-// https://astro.build/config
-export default defineConfig({});
+import tailwindcss from "@tailwindcss/vite";
+
+export default defineConfig({
+  site: 'https://[YOUR_USERNAME].github.io',
+  base: '/trivia',
+  vite: {
+    plugins: [tailwindcss()],
+  },
+});

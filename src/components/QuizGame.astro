@@ -1,0 +1,458 @@
+---
+
+---
+
+<div id="quiz-container" class="max-w-4xl mx-auto">
+  <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+    <div class="flex justify-between items-center mb-4">
+      <div>
+        <h2 id="question-counter" class="text-lg font-semibold text-gray-800">
+          Question 1 of 10
+        </h2>
+        <p id="category-display" class="text-sm text-gray-600">
+          General Knowledge
+        </p>
+      </div>
+      <div class="text-right">
+        <p class="text-sm text-gray-600">Score</p>
+        <p id="score-display" class="text-2xl font-bold text-indigo-600">0/0</p>
+      </div>
+    </div>
+
+    <div class="w-full bg-gray-200 rounded-full h-2">
+      <div
+        id="progress-bar"
+        class="bg-indigo-600 h-2 rounded-full transition-all duration-300"
+        style="width: 10%"
+      >
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-lg shadow-lg p-8 mb-6">
+    <div
+      id="difficulty-badge"
+      class="inline-block px-3 py-1 rounded-full text-sm font-medium mb-4 bg-green-100 text-green-800"
+    >
+      Easy
+    </div>
+
+    <h3
+      id="question-text"
+      class="text-xl font-semibold text-gray-800 mb-6 leading-relaxed"
+    >
+      Loading question...
+    </h3>
+    <div id="answer-options" class="space-y-3"></div>
+
+    <div id="feedback-section" class="hidden mt-6 p-4 rounded-lg">
+      <div class="flex items-start">
+        <div id="feedback-icon" class="flex-shrink-0 mr-3 mt-1"></div>
+        <div>
+          <p id="feedback-title" class="font-semibold"></p>
+          <p id="feedback-message" class="text-sm mt-1"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex justify-between items-center">
+    <button
+      id="prev-button"
+      class="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+      disabled
+    >
+      Previous
+    </button>
+
+    <button
+      id="next-button"
+      class="px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+      disabled
+    >
+      Next Question
+    </button>
+  </div>
+
+  <div
+    id="results-modal"
+    class="hidden fixed inset-0 bg-black bg-opacity-50 p-4 z-50"
+    style="display: none; align-items: center; justify-content: center;"
+  >
+    <div class="bg-white rounded-lg max-w-md w-full p-6">
+      <div class="text-center">
+        <div id="results-icon" class="mx-auto mb-4">🎉</div>
+        <h3 class="text-2xl font-bold text-gray-800 mb-2">Quiz Complete!</h3>
+        <p id="final-score" class="text-lg text-gray-600 mb-6">
+          You scored 0 out of 0
+        </p>
+        <p
+          id="percentage-score"
+          class="text-3xl font-bold text-indigo-600 mb-6"
+        >
+          0%
+        </p>
+
+        <div class="flex space-x-3">
+          <button
+            id="review-button"
+            class="flex-1 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+          >
+            Review Answers
+          </button>
+          <button
+            id="new-quiz-button"
+            class="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+          >
+            New Quiz
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="quiz-loading" class="text-center py-16">
+    <div
+      class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"
+    >
+    </div>
+    <p class="mt-4 text-gray-600">Loading quiz...</p>
+  </div>
+
+  <div id="quiz-error" class="hidden text-center py-16">
+    <div class="text-red-500 text-6xl mb-4">⚠️</div>
+    <h3 class="text-xl font-semibold text-gray-800 mb-2">Quiz Not Found</h3>
+    <p class="text-gray-600 mb-6">
+      No quiz data was found. Please start a new quiz.
+    </p>
+    <a
+      href="/"
+      class="inline-block px-6 py-3 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+    >
+      Start New Quiz
+    </a>
+  </div>
+</div>
+
+<script>
+  import {
+    shuffleArray,
+    formatQuestionNumber,
+    calculatePercentage,
+  } from "../utils/api";
+  import type { TriviaQuestion, QuizState } from "../types";
+
+  let quizState: QuizState;
+  let questions: TriviaQuestion[] = [];
+
+  const quizContainer = document.querySelector(
+    "#quiz-container > div:nth-child(1)"
+  ) as HTMLDivElement;
+  const questionCard = document.querySelector(
+    "#quiz-container > div:nth-child(2)"
+  ) as HTMLDivElement;
+  const navigationDiv = document.querySelector(
+    "#quiz-container > div:nth-child(3)"
+  ) as HTMLDivElement;
+  const questionCounter = document.getElementById(
+    "question-counter"
+  ) as HTMLHeadingElement;
+  const categoryDisplay = document.getElementById(
+    "category-display"
+  ) as HTMLParagraphElement;
+  const scoreDisplay = document.getElementById(
+    "score-display"
+  ) as HTMLParagraphElement;
+  const progressBar = document.getElementById("progress-bar") as HTMLDivElement;
+  const difficultyBadge = document.getElementById(
+    "difficulty-badge"
+  ) as HTMLDivElement;
+  const questionText = document.getElementById(
+    "question-text"
+  ) as HTMLHeadingElement;
+  const answerOptions = document.getElementById(
+    "answer-options"
+  ) as HTMLDivElement;
+  const feedbackSection = document.getElementById(
+    "feedback-section"
+  ) as HTMLDivElement;
+  const feedbackIcon = document.getElementById(
+    "feedback-icon"
+  ) as HTMLDivElement;
+  const feedbackTitle = document.getElementById(
+    "feedback-title"
+  ) as HTMLParagraphElement;
+  const feedbackMessage = document.getElementById(
+    "feedback-message"
+  ) as HTMLParagraphElement;
+  const prevButton = document.getElementById(
+    "prev-button"
+  ) as HTMLButtonElement;
+  const nextButton = document.getElementById(
+    "next-button"
+  ) as HTMLButtonElement;
+  const resultsModal = document.getElementById(
+    "results-modal"
+  ) as HTMLDivElement;
+  const finalScore = document.getElementById(
+    "final-score"
+  ) as HTMLParagraphElement;
+  const percentageScore = document.getElementById(
+    "percentage-score"
+  ) as HTMLParagraphElement;
+  const reviewButton = document.getElementById(
+    "review-button"
+  ) as HTMLButtonElement;
+  const newQuizButton = document.getElementById(
+    "new-quiz-button"
+  ) as HTMLButtonElement;
+  const quizLoading = document.getElementById("quiz-loading") as HTMLDivElement;
+  const quizError = document.getElementById("quiz-error") as HTMLDivElement;
+
+  window.addEventListener("DOMContentLoaded", initializeQuiz);
+
+  function initializeQuiz() {
+    try {
+      const questionsData = sessionStorage.getItem("triviaQuestions");
+
+      if (!questionsData) {
+        showError();
+        return;
+      }
+
+      questions = JSON.parse(questionsData);
+
+      if (questions.length === 0) {
+        showError();
+        return;
+      }
+
+      quizState = {
+        questions,
+        currentQuestionIndex: 0,
+        score: 0,
+        userAnswers: new Array(questions.length).fill(""),
+        isComplete: false,
+        showFeedback: false,
+      };
+
+      hideLoading();
+      displayCurrentQuestion();
+      setupEventListeners();
+    } catch (error) {
+      console.error("Error initializing quiz:", error);
+      showError();
+    }
+  }
+
+  function setupEventListeners() {
+    prevButton.addEventListener("click", goToPreviousQuestion);
+    nextButton.addEventListener("click", goToNextQuestion);
+    reviewButton.addEventListener("click", toggleReview);
+    newQuizButton.addEventListener("click", () => (window.location.href = "/"));
+  }
+
+  function displayCurrentQuestion() {
+    const question = questions[quizState.currentQuestionIndex];
+    const questionNumber = quizState.currentQuestionIndex + 1;
+    const totalQuestions = questions.length;
+
+    questionCounter.textContent = formatQuestionNumber(
+      quizState.currentQuestionIndex,
+      totalQuestions
+    );
+    categoryDisplay.textContent = question.category;
+    scoreDisplay.textContent = `${quizState.score}/${quizState.currentQuestionIndex}`;
+
+    const progressPercentage = (questionNumber / totalQuestions) * 100;
+    progressBar.style.width = `${progressPercentage}%`;
+
+    difficultyBadge.textContent =
+      question.difficulty.charAt(0).toUpperCase() +
+      question.difficulty.slice(1);
+    difficultyBadge.className = `inline-block px-3 py-1 rounded-full text-sm font-medium mb-4 ${getDifficultyColor(question.difficulty)}`;
+
+    questionText.textContent = question.question;
+
+    createAnswerOptions(question);
+
+    prevButton.disabled = quizState.currentQuestionIndex === 0;
+    updateNextButton();
+
+    if (quizState.userAnswers[quizState.currentQuestionIndex]) {
+      showFeedback(
+        question,
+        quizState.userAnswers[quizState.currentQuestionIndex]
+      );
+    } else {
+      hideFeedback();
+    }
+  }
+
+  function createAnswerOptions(question: TriviaQuestion) {
+    let options: string[];
+
+    if (question.type === "boolean") {
+      options = ["True", "False"];
+    } else {
+      options = shuffleArray([
+        question.correct_answer,
+        ...question.incorrect_answers,
+      ]);
+    }
+
+    answerOptions.innerHTML = "";
+
+    options.forEach((option, index) => {
+      const button = document.createElement("button");
+      button.className =
+        "w-full text-left p-4 border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors";
+      button.textContent = option;
+      button.addEventListener("click", () => selectAnswer(option));
+
+      if (quizState.userAnswers[quizState.currentQuestionIndex] === option) {
+        if (option === question.correct_answer) {
+          button.className =
+            "w-full text-left p-4 border-2 border-green-500 bg-green-50 rounded-lg";
+        } else {
+          button.className =
+            "w-full text-left p-4 border-2 border-red-500 bg-red-50 rounded-lg";
+        }
+      }
+
+      answerOptions.appendChild(button);
+    });
+  }
+
+  function selectAnswer(selectedAnswer: string) {
+    const question = questions[quizState.currentQuestionIndex];
+
+    quizState.userAnswers[quizState.currentQuestionIndex] = selectedAnswer;
+
+    if (
+      selectedAnswer === question.correct_answer &&
+      quizState.score <= quizState.currentQuestionIndex
+    ) {
+      quizState.score++;
+    }
+
+    showFeedback(question, selectedAnswer);
+
+    createAnswerOptions(question);
+    updateNextButton();
+    scoreDisplay.textContent = `${quizState.score}/${quizState.currentQuestionIndex + 1}`;
+  }
+
+  function showFeedback(question: TriviaQuestion, selectedAnswer: string) {
+    const isCorrect = selectedAnswer === question.correct_answer;
+
+    feedbackSection.classList.remove("hidden");
+
+    if (isCorrect) {
+      feedbackSection.className =
+        "mt-6 p-4 rounded-lg bg-green-50 border border-green-200";
+      feedbackIcon.innerHTML =
+        '<svg class="h-6 w-6 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>';
+      feedbackTitle.textContent = "Correct!";
+      feedbackTitle.className = "font-semibold text-green-800";
+      feedbackMessage.textContent = "Well done!";
+      feedbackMessage.className = "text-sm mt-1 text-green-700";
+    } else {
+      feedbackSection.className =
+        "mt-6 p-4 rounded-lg bg-red-50 border border-red-200";
+      feedbackIcon.innerHTML =
+        '<svg class="h-6 w-6 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>';
+      feedbackTitle.textContent = "Incorrect";
+      feedbackTitle.className = "font-semibold text-red-800";
+      feedbackMessage.textContent = `The correct answer is: ${question.correct_answer}`;
+      feedbackMessage.className = "text-sm mt-1 text-red-700";
+    }
+
+    quizState.showFeedback = true;
+  }
+
+  function hideFeedback() {
+    feedbackSection.classList.add("hidden");
+    quizState.showFeedback = false;
+  }
+
+  function updateNextButton() {
+    const hasAnswered =
+      quizState.userAnswers[quizState.currentQuestionIndex] !== "";
+    const isLastQuestion =
+      quizState.currentQuestionIndex === questions.length - 1;
+
+    nextButton.disabled = !hasAnswered;
+    nextButton.textContent = isLastQuestion ? "Finish Quiz" : "Next Question";
+  }
+
+  function goToPreviousQuestion() {
+    if (quizState.currentQuestionIndex > 0) {
+      quizState.currentQuestionIndex--;
+      displayCurrentQuestion();
+    }
+  }
+
+  function goToNextQuestion() {
+    if (quizState.currentQuestionIndex < questions.length - 1) {
+      quizState.currentQuestionIndex++;
+      displayCurrentQuestion();
+    } else {
+      finishQuiz();
+    }
+  }
+
+  function finishQuiz() {
+    quizState.isComplete = true;
+
+    const percentage = calculatePercentage(quizState.score, questions.length);
+
+    finalScore.textContent = `You scored ${quizState.score} out of ${questions.length}`;
+    percentageScore.textContent = `${percentage}%`;
+
+    const resultsIcon = document.getElementById(
+      "results-icon"
+    ) as HTMLDivElement;
+    if (percentage >= 80) {
+      resultsIcon.textContent = "🏆";
+    } else if (percentage >= 60) {
+      resultsIcon.textContent = "🎉";
+    } else {
+      resultsIcon.textContent = "📚";
+    }
+
+    resultsModal.style.display = "flex";
+    resultsModal.classList.remove("hidden");
+  }
+
+  function toggleReview() {
+    resultsModal.style.display = "none";
+    resultsModal.classList.add("hidden");
+  }
+
+  function getDifficultyColor(difficulty: string): string {
+    switch (difficulty) {
+      case "easy":
+        return "bg-green-100 text-green-800";
+      case "medium":
+        return "bg-yellow-100 text-yellow-800";
+      case "hard":
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  }
+
+  function hideLoading() {
+    quizLoading.classList.add("hidden");
+    quizContainer.classList.remove("hidden");
+    questionCard.classList.remove("hidden");
+    navigationDiv.classList.remove("hidden");
+  }
+
+  function showError() {
+    quizLoading.classList.add("hidden");
+    quizError.classList.remove("hidden");
+    quizContainer.classList.add("hidden");
+  }
+</script>
