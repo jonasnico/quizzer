@@ -2,6 +2,39 @@
 import { TRIVIA_CATEGORIES, QUIZ_LIMITS } from "../types";
 ---
 
+<style>
+  .slider::-webkit-slider-thumb {
+    appearance: none;
+    height: 24px;
+    width: 24px;
+    border-radius: 50%;
+    background: #4f46e5;
+    cursor: pointer;
+    border: 2px solid #ffffff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  }
+
+  .slider::-moz-range-thumb {
+    height: 24px;
+    width: 24px;
+    border-radius: 50%;
+    background: #4f46e5;
+    cursor: pointer;
+    border: 2px solid #ffffff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  }
+
+  .slider::-webkit-slider-track {
+    background: #e5e7eb;
+    border-radius: 6px;
+  }
+
+  .slider::-moz-range-track {
+    background: #e5e7eb;
+    border-radius: 6px;
+  }
+</style>
+
 <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-8">
   <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">
     Configure Your Quiz
@@ -9,9 +42,30 @@ import { TRIVIA_CATEGORIES, QUIZ_LIMITS } from "../types";
 
   <form id="quiz-config-form" class="space-y-6">
     <div>
-      <label for="amount" class="block text-sm font-medium text-gray-700 mb-2">
+      <label for="amount" class="block text-sm font-medium text-gray-700 mb-3">
         Number of Questions
       </label>
+
+      <div class="text-center mb-4">
+        <div
+          class="inline-flex items-center justify-center w-20 h-20 bg-indigo-100 rounded-full border-4 border-indigo-200 transition-all duration-200 hover:border-indigo-300 hover:bg-indigo-200"
+        >
+          <span
+            id="amount-display"
+            class="text-3xl font-bold text-indigo-800 transition-all duration-200"
+          >
+            {QUIZ_LIMITS.DEFAULT_QUESTIONS}
+          </span>
+        </div>
+        <p class="text-sm text-gray-600 mt-2">
+          You will answer <span
+            id="amount-text"
+            class="font-semibold text-indigo-600 transition-all duration-200"
+            >{QUIZ_LIMITS.DEFAULT_QUESTIONS}</span
+          > questions
+        </p>
+      </div>
+
       <input
         type="range"
         id="amount"
@@ -19,13 +73,10 @@ import { TRIVIA_CATEGORIES, QUIZ_LIMITS } from "../types";
         min={QUIZ_LIMITS.MIN_QUESTIONS}
         max={QUIZ_LIMITS.MAX_QUESTIONS}
         value={QUIZ_LIMITS.DEFAULT_QUESTIONS}
-        class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+        class="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer slider focus:outline-none focus:ring-2 focus:ring-indigo-500"
       />
-      <div class="flex justify-between text-sm text-gray-500 mt-1">
+      <div class="flex justify-between text-sm text-gray-500 mt-2">
         <span>{QUIZ_LIMITS.MIN_QUESTIONS}</span>
-        <span id="amount-display" class="font-medium text-indigo-600"
-          >{QUIZ_LIMITS.DEFAULT_QUESTIONS}</span
-        >
         <span>{QUIZ_LIMITS.MAX_QUESTIONS}</span>
       </div>
     </div>
@@ -191,6 +242,7 @@ import { TRIVIA_CATEGORIES, QUIZ_LIMITS } from "../types";
       amountDisplay: document.getElementById(
         "amount-display"
       ) as HTMLSpanElement,
+      amountText: document.getElementById("amount-text") as HTMLSpanElement,
       loadingState: document.getElementById("loading-state") as HTMLDivElement,
       errorState: document.getElementById("error-state") as HTMLDivElement,
       errorMessage: document.getElementById(
@@ -203,7 +255,14 @@ import { TRIVIA_CATEGORIES, QUIZ_LIMITS } from "../types";
   const elements = getDOMElements();
 
   elements.amountSlider.addEventListener("input", () => {
-    elements.amountDisplay.textContent = elements.amountSlider.value;
+    const value = elements.amountSlider.value;
+    elements.amountDisplay.textContent = value;
+    elements.amountText.textContent = value;
+
+    elements.amountDisplay.style.transform = "scale(1.1)";
+    setTimeout(() => {
+      elements.amountDisplay.style.transform = "scale(1)";
+    }, 150);
   });
 
   elements.form.addEventListener("submit", async (e) => {
