@@ -2,6 +2,16 @@ import type { QuizConfig, TriviaAPIResponse, TriviaQuestion } from "../types";
 
 const API_BASE_URL = "https://opentdb.com/api.php";
 
+const API_RESPONSE_CODES = {
+  SUCCESS: 0,
+  NO_RESULTS: 1,
+  INVALID_PARAMETER: 2,
+  TOKEN_NOT_FOUND: 3,
+  TOKEN_EMPTY: 4,
+} as const;
+
+const PERCENTAGE_MULTIPLIER = 100;
+
 export class TriviaAPI {
   static async fetchQuestions(config: QuizConfig): Promise<TriviaQuestion[]> {
     const url = new URL(API_BASE_URL);
@@ -29,7 +39,7 @@ export class TriviaAPI {
 
       const data: TriviaAPIResponse = await response.json();
 
-      if (data.response_code !== 0) {
+      if (data.response_code !== API_RESPONSE_CODES.SUCCESS) {
         throw new Error(this.getErrorMessage(data.response_code));
       }
 
@@ -49,13 +59,13 @@ export class TriviaAPI {
 
   private static getErrorMessage(responseCode: number): string {
     switch (responseCode) {
-      case 1:
+      case API_RESPONSE_CODES.NO_RESULTS:
         return "No results found. Try adjusting your search parameters.";
-      case 2:
+      case API_RESPONSE_CODES.INVALID_PARAMETER:
         return "Invalid parameter. Please check your quiz configuration.";
-      case 3:
+      case API_RESPONSE_CODES.TOKEN_NOT_FOUND:
         return "Token not found. Please try again.";
-      case 4:
+      case API_RESPONSE_CODES.TOKEN_EMPTY:
         return "Token empty. All possible questions have been exhausted.";
       default:
         return "Unknown error occurred while fetching questions.";
@@ -83,5 +93,5 @@ export function formatQuestionNumber(current: number, total: number): string {
 }
 
 export function calculatePercentage(score: number, total: number): number {
-  return Math.round((score / total) * 100);
+  return Math.round((score / total) * PERCENTAGE_MULTIPLIER);
 }

@@ -59,3 +59,19 @@ export const TRIVIA_CATEGORIES: Category[] = [
   { id: 31, name: "Entertainment: Japanese Anime & Manga" },
   { id: 32, name: "Entertainment: Cartoon & Animations" },
 ];
+
+export const QUIZ_LIMITS = {
+  MIN_QUESTIONS: 1,
+  MAX_QUESTIONS: 50,
+  DEFAULT_QUESTIONS: 10,
+} as const;
+
+export const SCORE_THRESHOLDS = {
+  EXCELLENT: 80,
+  GOOD: 60,
+} as const;
+
+export const STORAGE_KEYS = {
+  TRIVIA_QUESTIONS: "triviaQuestions",
+  QUIZ_CONFIG: "quizConfig",
+} as const;
