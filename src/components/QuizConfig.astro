@@ -233,7 +233,7 @@ import { TRIVIA_CATEGORIES } from "../types";
       sessionStorage.setItem("triviaQuestions", JSON.stringify(questions));
       sessionStorage.setItem("quizConfig", JSON.stringify(config));
 
-      window.location.href = "/quiz";
+      window.location.href = "./quiz";
     } catch (error) {
       console.error("Error starting quiz:", error);
 
