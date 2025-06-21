@@ -24,8 +24,6 @@ export interface QuizState {
   currentQuestionIndex: number;
   score: number;
   userAnswers: string[];
-  isComplete: boolean;
-  showFeedback: boolean;
 }
 
 export interface Category {

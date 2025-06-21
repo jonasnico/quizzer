@@ -1,6 +1,10 @@
 import { TriviaAPI } from "../utils/api";
 import type { QuizConfig } from "../types";
 import { STORAGE_KEYS } from "../types";
+import {
+  toggleElementVisibility,
+  setElementText,
+} from "../utils/dom";
 
 interface QuizConfigElements {
   form: HTMLFormElement;
@@ -54,8 +58,8 @@ export class QuizConfigManager {
 
   private updateAmountDisplay(): void {
     const value = this.elements.amountSlider.value;
-    this.elements.amountDisplay.textContent = value;
-    this.elements.amountText.textContent = value;
+    setElementText(this.elements.amountDisplay, value);
+    setElementText(this.elements.amountText, value);
 
     this.elements.amountDisplay.style.transform = "scale(1.1)";
     setTimeout(() => {
@@ -101,19 +105,19 @@ export class QuizConfigManager {
   }
 
   private showLoading(): void {
-    this.elements.form.classList.add("hidden");
-    this.elements.errorState.classList.add("hidden");
-    this.elements.loadingState.classList.remove("hidden");
+    toggleElementVisibility(this.elements.form, false);
+    toggleElementVisibility(this.elements.errorState, false);
+    toggleElementVisibility(this.elements.loadingState, true);
   }
 
   private showError(message: string): void {
-    this.elements.loadingState.classList.add("hidden");
-    this.elements.errorState.classList.remove("hidden");
-    this.elements.errorMessage.textContent = message;
+    toggleElementVisibility(this.elements.loadingState, false);
+    toggleElementVisibility(this.elements.errorState, true);
+    setElementText(this.elements.errorMessage, message);
   }
 
   private hideError(): void {
-    this.elements.errorState.classList.add("hidden");
-    this.elements.form.classList.remove("hidden");
+    toggleElementVisibility(this.elements.errorState, false);
+    toggleElementVisibility(this.elements.form, true);
   }
 }

@@ -5,28 +5,20 @@ import {
 } from "../utils/api";
 import type { TriviaQuestion, QuizState } from "../types";
 import { STORAGE_KEYS, SCORE_THRESHOLDS } from "../types";
-
-const BUTTON_STYLES = {
-  DEFAULT:
-    "w-full text-left p-4 border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors",
-  CORRECT:
-    "w-full text-left p-4 border-2 border-green-500 bg-green-50 rounded-lg cursor-not-allowed",
-  INCORRECT:
-    "w-full text-left p-4 border-2 border-red-500 bg-red-50 rounded-lg cursor-not-allowed",
-  DISABLED:
-    "w-full text-left p-4 border border-gray-300 rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed",
-} as const;
-
-const RESULT_ICONS = {
-  EXCELLENT: "🏆",
-  GOOD: "🎉",
-  NEEDS_IMPROVEMENT: "📚",
-} as const;
+import {
+  redirectToHome,
+  toggleElementVisibility,
+  setElementText,
+  setElementClass,
+} from "../utils/dom";
+import {
+  BUTTON_STYLES,
+  RESULT_ICONS,
+  SVG_ICONS,
+  COMMON_STYLES,
+} from "../utils/styles";
 
 interface QuizGameElements {
-  quizContainer: HTMLDivElement;
-  questionCard: HTMLDivElement;
-  navigationDiv: HTMLDivElement;
   questionCounter: HTMLHeadingElement;
   categoryDisplay: HTMLParagraphElement;
   scoreDisplay: HTMLParagraphElement;
@@ -45,8 +37,6 @@ interface QuizGameElements {
   percentageScore: HTMLParagraphElement;
   reviewButton: HTMLButtonElement;
   newQuizButton: HTMLButtonElement;
-  quizLoading: HTMLDivElement;
-  quizError: HTMLDivElement;
   reviewSection: HTMLDivElement;
   reviewFinalScore: HTMLParagraphElement;
   backToQuizButton: HTMLButtonElement;
@@ -67,15 +57,6 @@ export class QuizGameManager {
 
   private getDOMElements(): QuizGameElements {
     return {
-      quizContainer: document.querySelector(
-        "#quiz-container > div:nth-child(1)"
-      ) as HTMLDivElement,
-      questionCard: document.querySelector(
-        "#quiz-container > div:nth-child(2)"
-      ) as HTMLDivElement,
-      navigationDiv: document.querySelector(
-        "#quiz-container > div:nth-child(3)"
-      ) as HTMLDivElement,
       questionCounter: document.getElementById(
         "question-counter"
       ) as HTMLHeadingElement,
@@ -120,8 +101,6 @@ export class QuizGameManager {
       newQuizButton: document.getElementById(
         "new-quiz-button"
       ) as HTMLButtonElement,
-      quizLoading: document.getElementById("quiz-loading") as HTMLDivElement,
-      quizError: document.getElementById("quiz-error") as HTMLDivElement,
       reviewSection: document.getElementById(
         "review-section"
       ) as HTMLDivElement,
@@ -163,8 +142,6 @@ export class QuizGameManager {
         currentQuestionIndex: 0,
         score: 0,
         userAnswers: new Array(this.questions.length).fill(""),
-        isComplete: false,
-        showFeedback: false,
       };
 
       this.shuffledOptions = this.questions.map((question) => {
@@ -197,16 +174,13 @@ export class QuizGameManager {
     this.elements.reviewButton.addEventListener("click", () =>
       this.showReview()
     );
-    this.elements.newQuizButton.addEventListener(
-      "click",
-      () => (window.location.href = import.meta.env.BASE_URL)
-    );
+    this.elements.newQuizButton.addEventListener("click", redirectToHome);
     this.elements.backToQuizButton.addEventListener("click", () =>
       this.hideReview()
     );
     this.elements.newQuizFromReviewButton.addEventListener(
       "click",
-      () => (window.location.href = import.meta.env.BASE_URL)
+      redirectToHome
     );
   }
 
@@ -325,34 +299,36 @@ export class QuizGameManager {
   private showFeedback(question: TriviaQuestion, selectedAnswer: string): void {
     const isCorrect = selectedAnswer === question.correct_answer;
 
-    this.elements.feedbackSection.classList.remove("hidden");
+    toggleElementVisibility(this.elements.feedbackSection, true);
 
     if (isCorrect) {
-      this.elements.feedbackSection.className =
-        "mt-6 p-4 rounded-lg bg-green-50 border border-green-200";
-      this.elements.feedbackIcon.innerHTML =
-        '<svg class="h-6 w-6 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>';
-      this.elements.feedbackTitle.textContent = "Correct!";
-      this.elements.feedbackTitle.className = "font-semibold text-green-800";
-      this.elements.feedbackMessage.textContent = "Well done!";
+      setElementClass(
+        this.elements.feedbackSection,
+        COMMON_STYLES.FEEDBACK_BASE + " " + COMMON_STYLES.FEEDBACK_SUCCESS
+      );
+      this.elements.feedbackIcon.innerHTML = SVG_ICONS.SUCCESS;
+      setElementText(this.elements.feedbackTitle, "Correct!");
+      setElementClass(this.elements.feedbackTitle, COMMON_STYLES.TEXT_SUCCESS);
+      setElementText(this.elements.feedbackMessage, "Well done!");
       this.elements.feedbackMessage.className = "text-sm mt-1 text-green-700";
     } else {
-      this.elements.feedbackSection.className =
-        "mt-6 p-4 rounded-lg bg-red-50 border border-red-200";
-      this.elements.feedbackIcon.innerHTML =
-        '<svg class="h-6 w-6 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>';
-      this.elements.feedbackTitle.textContent = "Incorrect";
-      this.elements.feedbackTitle.className = "font-semibold text-red-800";
-      this.elements.feedbackMessage.textContent = `The correct answer is: ${question.correct_answer}`;
+      setElementClass(
+        this.elements.feedbackSection,
+        COMMON_STYLES.FEEDBACK_BASE + " " + COMMON_STYLES.FEEDBACK_ERROR
+      );
+      this.elements.feedbackIcon.innerHTML = SVG_ICONS.ERROR;
+      setElementText(this.elements.feedbackTitle, "Incorrect");
+      setElementClass(this.elements.feedbackTitle, COMMON_STYLES.TEXT_ERROR);
+      setElementText(
+        this.elements.feedbackMessage,
+        `The correct answer is: ${question.correct_answer}`
+      );
       this.elements.feedbackMessage.className = "text-sm mt-1 text-red-700";
     }
-
-    this.quizState.showFeedback = true;
   }
 
   private hideFeedback(): void {
-    this.elements.feedbackSection.classList.add("hidden");
-    this.quizState.showFeedback = false;
+    toggleElementVisibility(this.elements.feedbackSection, false);
   }
 
   private updateNextButton(): void {
@@ -384,8 +360,6 @@ export class QuizGameManager {
   }
 
   private finishQuiz(): void {
-    this.quizState.isComplete = true;
-
     const percentage = calculatePercentage(
       this.quizState.score,
       this.questions.length
@@ -411,22 +385,31 @@ export class QuizGameManager {
 
   private showReview(): void {
     this.elements.resultsModal.style.display = "none";
-    this.elements.resultsModal.classList.add("hidden");
+    toggleElementVisibility(this.elements.resultsModal, false);
 
-    this.elements.quizContainer.classList.add("hidden");
-    this.elements.reviewSection.classList.remove("hidden");
+    const quizContainer = document.querySelector(
+      "#quiz-container > div:nth-child(1)"
+    ) as HTMLDivElement;
+    toggleElementVisibility(quizContainer, false);
+    toggleElementVisibility(this.elements.reviewSection, true);
 
-    this.elements.reviewFinalScore.textContent = `${this.quizState.score}/${this.questions.length}`;
+    setElementText(
+      this.elements.reviewFinalScore,
+      `${this.quizState.score}/${this.questions.length}`
+    );
 
     this.displayAllQuestions();
   }
 
   private hideReview(): void {
-    this.elements.reviewSection.classList.add("hidden");
-    this.elements.quizContainer.classList.remove("hidden");
+    toggleElementVisibility(this.elements.reviewSection, false);
+    const quizContainer = document.querySelector(
+      "#quiz-container > div:nth-child(1)"
+    ) as HTMLDivElement;
+    toggleElementVisibility(quizContainer, true);
 
     this.elements.resultsModal.style.display = "flex";
-    this.elements.resultsModal.classList.remove("hidden");
+    toggleElementVisibility(this.elements.resultsModal, true);
   }
 
   private displayAllQuestions(): void {
@@ -526,15 +509,36 @@ export class QuizGameManager {
   }
 
   private hideLoading(): void {
-    this.elements.quizLoading.classList.add("hidden");
-    this.elements.quizContainer.classList.remove("hidden");
-    this.elements.questionCard.classList.remove("hidden");
-    this.elements.navigationDiv.classList.remove("hidden");
+    const quizLoading = document.getElementById(
+      "quiz-loading"
+    ) as HTMLDivElement;
+    const quizContainer = document.querySelector(
+      "#quiz-container > div:nth-child(1)"
+    ) as HTMLDivElement;
+    const questionCard = document.querySelector(
+      "#quiz-container > div:nth-child(2)"
+    ) as HTMLDivElement;
+    const navigationDiv = document.querySelector(
+      "#quiz-container > div:nth-child(3)"
+    ) as HTMLDivElement;
+
+    toggleElementVisibility(quizLoading, false);
+    toggleElementVisibility(quizContainer, true);
+    toggleElementVisibility(questionCard, true);
+    toggleElementVisibility(navigationDiv, true);
   }
 
   private showError(): void {
-    this.elements.quizLoading.classList.add("hidden");
-    this.elements.quizError.classList.remove("hidden");
-    this.elements.quizContainer.classList.add("hidden");
+    const quizLoading = document.getElementById(
+      "quiz-loading"
+    ) as HTMLDivElement;
+    const quizError = document.getElementById("quiz-error") as HTMLDivElement;
+    const quizContainer = document.querySelector(
+      "#quiz-container > div:nth-child(1)"
+    ) as HTMLDivElement;
+
+    toggleElementVisibility(quizLoading, false);
+    toggleElementVisibility(quizError, true);
+    toggleElementVisibility(quizContainer, false);
   }
 }
