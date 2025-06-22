@@ -159,10 +159,7 @@ export class QuizGameManager {
       "click",
       redirectToHome
     );
-    this.elements.errorNewQuizButton.addEventListener(
-      "click",
-      redirectToHome
-    );
+    this.elements.errorNewQuizButton.addEventListener("click", redirectToHome);
   }
 
   public displayCurrentQuestion(): void {
@@ -388,6 +385,11 @@ export class QuizGameManager {
       this.elements.resultsCardIcon.textContent =
         RESULT_ICONS.NEEDS_IMPROVEMENT;
     }
+
+    this.elements.questionCounter.textContent = "Quiz Complete";
+    this.elements.categoryDisplay.textContent = `${this.questions.length} questions answered`;
+    this.elements.scoreDisplay.textContent = `${this.quizState.score}/${this.questions.length}`;
+    this.elements.progressBar.style.width = "100%";
 
     const questionCard = document.querySelector(
       "#quiz-container > div:nth-child(3)"

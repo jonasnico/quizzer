@@ -1,6 +1,10 @@
 import type { TriviaQuestion, QuizState } from "../types";
 import { STORAGE_KEYS } from "../types";
-import { toggleElementVisibility, setElementText, redirectToHome } from "../utils/dom";
+import {
+  toggleElementVisibility,
+  setElementText,
+  redirectToHome,
+} from "../utils/dom";
 
 interface QuizReviewElements {
   reviewContent: HTMLDivElement;
@@ -101,7 +105,7 @@ export class QuizReviewManager {
 
     setElementText(
       this.elements.reviewFinalScore,
-      `${this.quizState.score}/${this.questions.length}`
+      `${this.quizState.score}/${this.quizState.userAnswers.length}`
     );
 
     this.displayAllQuestions();
