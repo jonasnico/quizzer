@@ -1,10 +1,7 @@
 import { TriviaAPI } from "../utils/api";
 import type { QuizConfig } from "../types";
 import { STORAGE_KEYS } from "../types";
-import {
-  toggleElementVisibility,
-  setElementText,
-} from "../utils/dom";
+import { toggleElementVisibility, setElementText } from "../utils/dom";
 
 interface QuizConfigElements {
   form: HTMLFormElement;
@@ -87,6 +84,9 @@ export class QuizConfigManager {
   private async startQuiz(config: QuizConfig): Promise<void> {
     try {
       this.showLoading();
+
+      sessionStorage.removeItem(STORAGE_KEYS.QUIZ_REVIEW_DATA);
+
       const questions = await TriviaAPI.fetchQuestions(config);
 
       sessionStorage.setItem(

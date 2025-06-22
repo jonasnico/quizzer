@@ -72,4 +72,5 @@ export const SCORE_THRESHOLDS = {
 export const STORAGE_KEYS = {
   TRIVIA_QUESTIONS: "triviaQuestions",
   QUIZ_CONFIG: "quizConfig",
+  QUIZ_REVIEW_DATA: "quizReviewData",
 } as const;

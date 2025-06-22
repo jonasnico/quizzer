@@ -1,4 +1,9 @@
+import { STORAGE_KEYS } from "../types";
+
 export function redirectToHome(): void {
+  sessionStorage.removeItem(STORAGE_KEYS.TRIVIA_QUESTIONS);
+  sessionStorage.removeItem(STORAGE_KEYS.QUIZ_CONFIG);
+  sessionStorage.removeItem(STORAGE_KEYS.QUIZ_REVIEW_DATA);
   window.location.href = import.meta.env.BASE_URL;
 }
 
@@ -15,8 +20,4 @@ export function toggleElementVisibility(
 
 export function setElementText(element: HTMLElement, text: string): void {
   element.textContent = text;
-}
-
-export function setElementClass(element: HTMLElement, className: string): void {
-  element.className = className;
 }

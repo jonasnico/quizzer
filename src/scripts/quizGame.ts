@@ -5,19 +5,8 @@ import {
 } from "../utils/api";
 import type { TriviaQuestion, QuizState } from "../types";
 import { STORAGE_KEYS, SCORE_THRESHOLDS } from "../types";
-import {
-  redirectToHome,
-  toggleElementVisibility,
-  setElementText,
-  setElementClass,
-} from "../utils/dom";
-import {
-  BUTTON_STYLES,
-  RESULT_ICONS,
-  SVG_ICONS,
-  COMMON_STYLES,
-  TOAST_STYLES,
-} from "../utils/styles";
+import { redirectToHome, toggleElementVisibility } from "../utils/dom";
+import { BUTTON_STYLES, RESULT_ICONS, TOAST_STYLES } from "../utils/styles";
 
 interface QuizGameElements {
   questionCounter: HTMLHeadingElement;
@@ -30,16 +19,13 @@ interface QuizGameElements {
   toastContainer: HTMLDivElement;
   prevButton: HTMLButtonElement;
   nextButton: HTMLButtonElement;
-  resultsModal: HTMLDivElement;
-  finalScore: HTMLParagraphElement;
-  percentageScore: HTMLParagraphElement;
-  reviewButton: HTMLButtonElement;
-  newQuizButton: HTMLButtonElement;
-  reviewSection: HTMLDivElement;
-  reviewFinalScore: HTMLParagraphElement;
-  backToQuizButton: HTMLButtonElement;
-  reviewQuestions: HTMLDivElement;
-  newQuizFromReviewButton: HTMLButtonElement;
+  resultsCard: HTMLDivElement;
+  resultsCardIcon: HTMLDivElement;
+  resultsCardScore: HTMLParagraphElement;
+  resultsCardPercentage: HTMLParagraphElement;
+  resultsReviewButton: HTMLButtonElement;
+  resultsNewQuizButton: HTMLButtonElement;
+  errorNewQuizButton: HTMLButtonElement;
 }
 
 export class QuizGameManager {
@@ -79,33 +65,24 @@ export class QuizGameManager {
       ) as HTMLDivElement,
       prevButton: document.getElementById("prev-button") as HTMLButtonElement,
       nextButton: document.getElementById("next-button") as HTMLButtonElement,
-      resultsModal: document.getElementById("results-modal") as HTMLDivElement,
-      finalScore: document.getElementById(
-        "final-score"
-      ) as HTMLParagraphElement,
-      percentageScore: document.getElementById(
-        "percentage-score"
-      ) as HTMLParagraphElement,
-      reviewButton: document.getElementById(
-        "review-button"
-      ) as HTMLButtonElement,
-      newQuizButton: document.getElementById(
-        "new-quiz-button"
-      ) as HTMLButtonElement,
-      reviewSection: document.getElementById(
-        "review-section"
+      resultsCard: document.getElementById("results-card") as HTMLDivElement,
+      resultsCardIcon: document.getElementById(
+        "results-card-icon"
       ) as HTMLDivElement,
-      reviewFinalScore: document.getElementById(
-        "review-final-score"
+      resultsCardScore: document.getElementById(
+        "results-card-score"
       ) as HTMLParagraphElement,
-      backToQuizButton: document.getElementById(
-        "back-to-quiz-button"
+      resultsCardPercentage: document.getElementById(
+        "results-card-percentage"
+      ) as HTMLParagraphElement,
+      resultsReviewButton: document.getElementById(
+        "results-review-button"
       ) as HTMLButtonElement,
-      reviewQuestions: document.getElementById(
-        "review-questions"
-      ) as HTMLDivElement,
-      newQuizFromReviewButton: document.getElementById(
-        "new-quiz-from-review-button"
+      resultsNewQuizButton: document.getElementById(
+        "results-new-quiz-button"
+      ) as HTMLButtonElement,
+      errorNewQuizButton: document.getElementById(
+        "error-new-quiz-button"
       ) as HTMLButtonElement,
     };
   }
@@ -125,6 +102,19 @@ export class QuizGameManager {
 
       if (this.questions.length === 0) {
         this.showError();
+        return;
+      }
+
+      const reviewData = sessionStorage.getItem(STORAGE_KEYS.QUIZ_REVIEW_DATA);
+
+      if (reviewData) {
+        const parsedReviewData = JSON.parse(reviewData);
+        this.quizState = parsedReviewData.quizState;
+        this.shuffledOptions = parsedReviewData.shuffledOptions;
+
+        this.hideLoading();
+        this.showCompletedQuizResults();
+        this.setupEventListeners();
         return;
       }
 
@@ -162,14 +152,14 @@ export class QuizGameManager {
     this.elements.nextButton.addEventListener("click", () =>
       this.goToNextQuestion()
     );
-    this.elements.reviewButton.addEventListener("click", () =>
-      this.showReview()
+    this.elements.resultsReviewButton.addEventListener("click", () =>
+      this.goToReviewPage()
     );
-    this.elements.newQuizButton.addEventListener("click", redirectToHome);
-    this.elements.backToQuizButton.addEventListener("click", () =>
-      this.hideReview()
+    this.elements.resultsNewQuizButton.addEventListener(
+      "click",
+      redirectToHome
     );
-    this.elements.newQuizFromReviewButton.addEventListener(
+    this.elements.errorNewQuizButton.addEventListener(
       "click",
       redirectToHome
     );
@@ -361,134 +351,54 @@ export class QuizGameManager {
       this.questions.length
     );
 
-    this.elements.finalScore.textContent = `You scored ${this.quizState.score} out of ${this.questions.length}`;
-    this.elements.percentageScore.textContent = `${percentage}%`;
-
-    const resultsIcon = document.getElementById(
-      "results-icon"
-    ) as HTMLDivElement;
-    if (percentage >= SCORE_THRESHOLDS.EXCELLENT) {
-      resultsIcon.textContent = RESULT_ICONS.EXCELLENT;
-    } else if (percentage >= SCORE_THRESHOLDS.GOOD) {
-      resultsIcon.textContent = RESULT_ICONS.GOOD;
-    } else {
-      resultsIcon.textContent = RESULT_ICONS.NEEDS_IMPROVEMENT;
-    }
-
-    this.elements.resultsModal.style.display = "flex";
-    this.elements.resultsModal.classList.remove("hidden");
-  }
-
-  private showReview(): void {
-    this.elements.resultsModal.style.display = "none";
-    toggleElementVisibility(this.elements.resultsModal, false);
-
-    const quizContainer = document.querySelector(
-      "#quiz-container > div:nth-child(1)"
-    ) as HTMLDivElement;
-    toggleElementVisibility(quizContainer, false);
-    toggleElementVisibility(this.elements.reviewSection, true);
-
-    setElementText(
-      this.elements.reviewFinalScore,
-      `${this.quizState.score}/${this.questions.length}`
+    sessionStorage.setItem(
+      STORAGE_KEYS.QUIZ_REVIEW_DATA,
+      JSON.stringify({
+        questions: this.questions,
+        quizState: this.quizState,
+        shuffledOptions: this.shuffledOptions,
+      })
     );
 
-    this.displayAllQuestions();
+    this.showResults(percentage);
   }
 
-  private hideReview(): void {
-    toggleElementVisibility(this.elements.reviewSection, false);
-    const quizContainer = document.querySelector(
-      "#quiz-container > div:nth-child(1)"
+  private goToReviewPage(): void {
+    window.location.href = import.meta.env.BASE_URL + "/review";
+  }
+
+  private showCompletedQuizResults(): void {
+    const percentage = calculatePercentage(
+      this.quizState.score,
+      this.questions.length
+    );
+
+    this.showResults(percentage);
+  }
+
+  private showResults(percentage: number): void {
+    this.elements.resultsCardScore.textContent = `You scored ${this.quizState.score} out of ${this.questions.length}`;
+    this.elements.resultsCardPercentage.textContent = `${percentage}%`;
+
+    if (percentage >= SCORE_THRESHOLDS.EXCELLENT) {
+      this.elements.resultsCardIcon.textContent = RESULT_ICONS.EXCELLENT;
+    } else if (percentage >= SCORE_THRESHOLDS.GOOD) {
+      this.elements.resultsCardIcon.textContent = RESULT_ICONS.GOOD;
+    } else {
+      this.elements.resultsCardIcon.textContent =
+        RESULT_ICONS.NEEDS_IMPROVEMENT;
+    }
+
+    const questionCard = document.querySelector(
+      "#quiz-container > div:nth-child(3)"
     ) as HTMLDivElement;
-    toggleElementVisibility(quizContainer, true);
+    const navigationDiv = document.querySelector(
+      "#quiz-container > div:nth-child(5)"
+    ) as HTMLDivElement;
 
-    this.elements.resultsModal.style.display = "flex";
-    toggleElementVisibility(this.elements.resultsModal, true);
-  }
-
-  private displayAllQuestions(): void {
-    this.elements.reviewQuestions.innerHTML = "";
-
-    this.questions.forEach((question, index) => {
-      const questionDiv = document.createElement("div");
-      questionDiv.className = "bg-white rounded-lg shadow-lg p-6";
-
-      const userAnswer = this.quizState.userAnswers[index];
-      const isCorrect = userAnswer === question.correct_answer;
-      const options = this.shuffledOptions[index];
-
-      questionDiv.innerHTML = `
-        <div class="flex justify-between items-start mb-4">
-          <div class="flex-1">
-            <div class="flex items-center gap-3 mb-2">
-              <span class="text-lg font-semibold text-gray-800">Question ${
-                index + 1
-              }</span>
-              <span class="px-2 py-1 rounded-full text-xs font-medium ${this.getDifficultyColor(
-                question.difficulty
-              )}">
-                ${
-                  question.difficulty.charAt(0).toUpperCase() +
-                  question.difficulty.slice(1)
-                }
-              </span>
-            </div>
-            <p class="text-sm text-gray-600">${question.category}</p>
-          </div>
-          <div class="flex items-center">
-            ${
-              isCorrect
-                ? '<svg class="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>'
-                : '<svg class="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>'
-            }
-          </div>
-        </div>
-        
-        <h3 class="text-lg font-semibold text-gray-800 mb-4 leading-relaxed">
-          ${question.question}
-        </h3>
-        
-        <div class="space-y-2">
-          ${options
-            .map((option) => {
-              let optionClass = "p-3 border rounded-lg text-sm";
-              let optionLabel = "";
-
-              if (option === question.correct_answer) {
-                optionClass += " border-green-500 bg-green-50 text-green-800";
-                optionLabel = " ✓ Correct Answer";
-              } else if (option === userAnswer && !isCorrect) {
-                optionClass += " border-red-500 bg-red-50 text-red-800";
-                optionLabel = " ✗ Your Answer";
-              } else {
-                optionClass += " border-gray-200 bg-gray-50 text-gray-600";
-              }
-
-              return `<div class="${optionClass}">
-              <span>${option}</span>
-              <span class="font-medium">${optionLabel}</span>
-            </div>`;
-            })
-            .join("")}
-        </div>
-        
-        ${
-          !isCorrect && userAnswer
-            ? `
-          <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-            <p class="text-sm text-blue-800">
-              <span class="font-medium">Explanation:</span> The correct answer is "${question.correct_answer}".
-            </p>
-          </div>
-        `
-            : ""
-        }
-      `;
-
-      this.elements.reviewQuestions.appendChild(questionDiv);
-    });
+    toggleElementVisibility(questionCard, false);
+    toggleElementVisibility(navigationDiv, false);
+    toggleElementVisibility(this.elements.resultsCard, true);
   }
 
   private getDifficultyColor(difficulty: string): string {
