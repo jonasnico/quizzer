@@ -16,6 +16,7 @@ import {
   RESULT_ICONS,
   SVG_ICONS,
   COMMON_STYLES,
+  TOAST_STYLES,
 } from "../utils/styles";
 
 interface QuizGameElements {
@@ -26,10 +27,7 @@ interface QuizGameElements {
   difficultyBadge: HTMLDivElement;
   questionText: HTMLHeadingElement;
   answerOptions: HTMLDivElement;
-  feedbackSection: HTMLDivElement;
-  feedbackIcon: HTMLDivElement;
-  feedbackTitle: HTMLParagraphElement;
-  feedbackMessage: HTMLParagraphElement;
+  toastContainer: HTMLDivElement;
   prevButton: HTMLButtonElement;
   nextButton: HTMLButtonElement;
   resultsModal: HTMLDivElement;
@@ -76,16 +74,9 @@ export class QuizGameManager {
       answerOptions: document.getElementById(
         "answer-options"
       ) as HTMLDivElement,
-      feedbackSection: document.getElementById(
-        "feedback-section"
+      toastContainer: document.getElementById(
+        "toast-container"
       ) as HTMLDivElement,
-      feedbackIcon: document.getElementById("feedback-icon") as HTMLDivElement,
-      feedbackTitle: document.getElementById(
-        "feedback-title"
-      ) as HTMLParagraphElement,
-      feedbackMessage: document.getElementById(
-        "feedback-message"
-      ) as HTMLParagraphElement,
       prevButton: document.getElementById("prev-button") as HTMLButtonElement,
       nextButton: document.getElementById("next-button") as HTMLButtonElement,
       resultsModal: document.getElementById("results-modal") as HTMLDivElement,
@@ -213,15 +204,6 @@ export class QuizGameManager {
     this.elements.prevButton.disabled =
       this.quizState.currentQuestionIndex === 0;
     this.updateNextButton();
-
-    if (this.quizState.userAnswers[this.quizState.currentQuestionIndex]) {
-      this.showFeedback(
-        question,
-        this.quizState.userAnswers[this.quizState.currentQuestionIndex]
-      );
-    } else {
-      this.hideFeedback();
-    }
   }
 
   private getButtonStyle(
@@ -288,7 +270,7 @@ export class QuizGameManager {
       this.quizState.score++;
     }
 
-    this.showFeedback(question, selectedAnswer);
+    this.showToast(question, selectedAnswer);
     this.createAnswerOptions(question);
     this.updateNextButton();
     this.elements.scoreDisplay.textContent = `${this.quizState.score}/${
@@ -296,39 +278,53 @@ export class QuizGameManager {
     }`;
   }
 
-  private showFeedback(question: TriviaQuestion, selectedAnswer: string): void {
+  private showToast(question: TriviaQuestion, selectedAnswer: string): void {
     const isCorrect = selectedAnswer === question.correct_answer;
 
-    toggleElementVisibility(this.elements.feedbackSection, true);
+    const toast = document.createElement("div");
+    toast.className = `${TOAST_STYLES.BASE} ${
+      isCorrect ? TOAST_STYLES.SUCCESS : TOAST_STYLES.ERROR
+    } translate-x-full opacity-0`;
 
-    if (isCorrect) {
-      setElementClass(
-        this.elements.feedbackSection,
-        COMMON_STYLES.FEEDBACK_BASE + " " + COMMON_STYLES.FEEDBACK_SUCCESS
-      );
-      this.elements.feedbackIcon.innerHTML = SVG_ICONS.SUCCESS;
-      setElementText(this.elements.feedbackTitle, "Correct!");
-      setElementClass(this.elements.feedbackTitle, COMMON_STYLES.TEXT_SUCCESS);
-      setElementText(this.elements.feedbackMessage, "Well done!");
-      this.elements.feedbackMessage.className = "text-sm mt-1 text-green-700";
-    } else {
-      setElementClass(
-        this.elements.feedbackSection,
-        COMMON_STYLES.FEEDBACK_BASE + " " + COMMON_STYLES.FEEDBACK_ERROR
-      );
-      this.elements.feedbackIcon.innerHTML = SVG_ICONS.ERROR;
-      setElementText(this.elements.feedbackTitle, "Incorrect");
-      setElementClass(this.elements.feedbackTitle, COMMON_STYLES.TEXT_ERROR);
-      setElementText(
-        this.elements.feedbackMessage,
-        `The correct answer is: ${question.correct_answer}`
-      );
-      this.elements.feedbackMessage.className = "text-sm mt-1 text-red-700";
-    }
-  }
+    const icon = isCorrect ? "✓" : "✗";
+    const title = isCorrect ? "Correct!" : "Incorrect";
+    const message = isCorrect
+      ? "Well done!"
+      : `The correct answer is: ${question.correct_answer}`;
 
-  private hideFeedback(): void {
-    toggleElementVisibility(this.elements.feedbackSection, false);
+    toast.innerHTML = `
+      <div class="flex items-start">
+        <div class="flex-shrink-0 mr-3">
+          <span class="text-lg font-bold">${icon}</span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="font-semibold">${title}</p>
+          <p class="text-sm mt-1">${message}</p>
+        </div>
+        <button class="ml-2 text-gray-400 hover:text-gray-600" onclick="this.parentElement.parentElement.remove()">
+          <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+          </svg>
+        </button>
+      </div>
+    `;
+
+    this.elements.toastContainer.appendChild(toast);
+
+    setTimeout(() => {
+      toast.classList.remove("translate-x-full", "opacity-0");
+      toast.classList.add("translate-x-0", "opacity-100");
+    }, 10);
+
+    setTimeout(() => {
+      toast.classList.remove("translate-x-0", "opacity-100");
+      toast.classList.add("translate-x-full", "opacity-0");
+      setTimeout(() => {
+        if (toast.parentElement) {
+          toast.remove();
+        }
+      }, 300);
+    }, 3000);
   }
 
   private updateNextButton(): void {

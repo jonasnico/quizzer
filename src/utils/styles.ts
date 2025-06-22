@@ -35,3 +35,11 @@ export const SVG_ICONS = {
   ERROR:
     '<svg class="h-6 w-6 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>',
 } as const;
+
+export const TOAST_STYLES = {
+  BASE: "mb-3 px-4 py-3 rounded-lg shadow-lg border-l-4 transition-all duration-300 transform",
+  SUCCESS: "bg-green-50 border-green-400 text-green-800",
+  ERROR: "bg-red-50 border-red-400 text-red-800",
+  ENTER: "translate-x-0 opacity-100",
+  EXIT: "translate-x-full opacity-0",
+} as const;

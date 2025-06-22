@@ -3,7 +3,7 @@ import LoadingSpinner from "./LoadingSpinner.astro";
 const baseUrl = import.meta.env.BASE_URL;
 ---
 
-<div id="quiz-container" class="max-w-4xl mx-auto">
+<div id="quiz-container" class="max-w-4xl mx-auto relative">
   <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
     <div class="flex justify-between items-center mb-4">
       <div>
@@ -30,6 +30,8 @@ const baseUrl = import.meta.env.BASE_URL;
     </div>
   </div>
 
+  <div id="toast-container" class="absolute top-38 right-4 z-50"></div>
+
   <div class="bg-white rounded-lg shadow-lg p-8 mb-6">
     <div
       id="difficulty-badge"
@@ -45,16 +47,6 @@ const baseUrl = import.meta.env.BASE_URL;
       Loading question...
     </h3>
     <div id="answer-options" class="space-y-3"></div>
-
-    <div id="feedback-section" class="hidden mt-6 p-4 rounded-lg">
-      <div class="flex items-start">
-        <div id="feedback-icon" class="flex-shrink-0 mr-3 mt-1"></div>
-        <div>
-          <p id="feedback-title" class="font-semibold"></p>
-          <p id="feedback-message" class="text-sm mt-1"></p>
-        </div>
-      </div>
-    </div>
   </div>
 
   <div class="flex justify-between items-center">
