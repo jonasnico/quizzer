@@ -1,8 +1,8 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import QuizReview from "../components/QuizReview.astro";
+import QuizReview from "../components/QuizReview.tsx";
 ---
 
 <Layout title="Quiz Review - Quizzer">
-  <QuizReview />
+  <QuizReview client:load />
 </Layout>

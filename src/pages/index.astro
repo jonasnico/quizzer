@@ -1,8 +1,8 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import QuizConfig from "../components/QuizConfig.astro";
+import QuizConfig from "../components/QuizConfig.tsx";
 ---
 
 <Layout title="Quizzer - Test Your Knowledge">
-  <QuizConfig />
+  <QuizConfig client:load />
 </Layout>

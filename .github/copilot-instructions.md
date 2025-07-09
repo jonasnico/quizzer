@@ -1,15 +1,14 @@
 # Copilot Instructions for Quizzer
 
-<!-- Use this file to provide workspace-specific custom instructions to Copilot. For more details, visit https://code.visualstudio.com/docs/copilot/copilot-customization#_use-a-githubcopilotinstructionsmd-file -->
-
-This is an Astro trivia quiz application that uses the Open Trivia Database API (https://opentdb.com/api_config.php) to fetch trivia questions.
+This is an Astro trivia quiz application with React components that uses the Open Trivia Database API (https://opentdb.com/api_config.php) to fetch trivia questions.
 
 ## Project Structure and Guidelines
 
-- **Framework**: Astro with TypeScript
+- **Framework**: Astro with React integration
+- **Frontend**: React with TypeScript for interactive components
 - **Styling**: Tailwind CSS
 - **API**: Open Trivia Database (https://opentdb.com/)
-- **State Management**: Use client-side JavaScript/TypeScript for quiz state
+- **State Management**: React hooks for component state
 
 ## Key Features
 
@@ -35,9 +34,10 @@ This is an Astro trivia quiz application that uses the Open Trivia Database API 
 
 ## Code Style Guidelines
 
+- Use React components for all interactive features
 - Use TypeScript for all logic
-- Prefer Astro components for static content
-- Use client-side scripts for interactive features
+- Prefer React hooks for state management
+- Use Astro components only for static layout
 - Follow semantic HTML structure
 - Use Tailwind classes for styling
 - Implement responsive design
@@ -62,6 +62,7 @@ interface TriviaQuestion {
 ## Component Structure
 
 - Use `.astro` files for pages and layout components
+- Use React `.tsx` components for interactive features
 - Use TypeScript for utility functions and types
 - Keep API calls in separate utility functions
 - Implement proper error boundaries

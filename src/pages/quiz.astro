@@ -1,8 +1,8 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import QuizGame from "../components/QuizGame.astro";
+import QuizGame from "../components/QuizGame.tsx";
 ---
 
 <Layout title="Quiz in Progress - Quizzer">
-  <QuizGame />
+  <QuizGame client:load />
 </Layout>
