@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import ConfettiExplosion from "react-confetti-explosion";
 import {
   shuffleArray,
   formatQuestionNumber,
@@ -23,6 +24,7 @@ export default function QuizGame() {
   const [hasError, setHasError] = useState(false);
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [showResults, setShowResults] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
 
   useEffect(() => {
     initializeQuiz();
@@ -50,8 +52,11 @@ export default function QuizGame() {
 
       if (reviewData) {
         const parsedReviewData = JSON.parse(reviewData);
-        setQuizState(parsedReviewData.quizState);
-        setQuestions(parsedReviewData.questions);
+        const completedQuizState = parsedReviewData.quizState;
+        const completedQuestions = parsedReviewData.questions;
+        
+        setQuizState(completedQuizState);
+        setQuestions(completedQuestions);
         setShuffledOptions(parsedReviewData.shuffledOptions);
         setShowResults(true);
         setIsLoading(false);
@@ -158,6 +163,8 @@ export default function QuizGame() {
   const finishQuiz = () => {
     if (!quizState) return;
 
+    const percentage = calculatePercentage(quizState.score, questions.length);
+
     sessionStorage.setItem(
       STORAGE_KEYS.QUIZ_REVIEW_DATA,
       JSON.stringify({
@@ -168,6 +175,10 @@ export default function QuizGame() {
     );
 
     setShowResults(true);
+
+    if (percentage >= SCORE_THRESHOLDS.GOOD) {
+      setShowConfetti(true);
+    }
   };
 
   const redirectToHome = () => {
@@ -270,6 +281,17 @@ export default function QuizGame() {
 
     return (
       <div className="max-w-4xl mx-auto relative">
+        {showConfetti && (
+          <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-50">
+            <ConfettiExplosion
+              force={percentage >= SCORE_THRESHOLDS.EXCELLENT ? 1.0 : 0.8}
+              duration={percentage >= SCORE_THRESHOLDS.EXCELLENT ? 4000 : 3000}
+              particleCount={percentage >= SCORE_THRESHOLDS.EXCELLENT ? 350 : 250}
+              width={1600}
+              onComplete={() => setShowConfetti(false)}
+            />
+          </div>
+        )}
         <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
           <div className="flex justify-between items-center mb-4">
             <div>
