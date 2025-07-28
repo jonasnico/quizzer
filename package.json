@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@astrojs/react": "^4.3.0",
-    "@tailwindcss/vite": "^4.1.10",
+    "@tailwindcss/vite": "^4.1.11",
     "@types/react": "^19.1.8",
     "astro": "^5.12.1",
     "react": "^19.1.0",
