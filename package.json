@@ -10,9 +10,9 @@
   },
   "dependencies": {
     "@astrojs/react": "^4.4.0",
-    "@tailwindcss/vite": "^4.1.14",
-    "@types/react": "^19.2.0",
-    "astro": "^5.14.1",
+    "@tailwindcss/vite": "^4.1.16",
+    "@types/react": "^19.2.2",
+    "astro": "^5.15.1",
     "react": "^19.2.0",
     "react-confetti-explosion": "^3.0.3",
     "react-dom": "^19.2.0",
