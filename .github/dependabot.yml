@@ -19,4 +19,9 @@ updates:
         patterns:
           - "*"
         update-types:
-          - "patch"    
+          - "patch"   
+
+   - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"       
