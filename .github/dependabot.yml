@@ -7,8 +7,16 @@ updates:
       day: "monday"
       time: "08:00"
       timezone: "Europe/Oslo"
+    cooldown:
+      default-days: 7
     groups:
       all-minor-updates:
         update-types:
           - "minor"
           - "patch"
+      security-patches:
+        applies-to: security-updates
+        patterns:
+          - "*"
+        update-types:
+          - "patch"    
