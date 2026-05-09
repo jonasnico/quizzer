@@ -14,41 +14,20 @@ export default function QuizReview() {
   const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
-    initializeReview();
-  }, []);
-
-  const initializeReview = () => {
     try {
-      const reviewDataStr = sessionStorage.getItem(
-        STORAGE_KEYS.QUIZ_REVIEW_DATA
-      );
-
-      if (!reviewDataStr) {
-        setHasError(true);
-        setIsLoading(false);
-        return;
+      const raw = sessionStorage.getItem(STORAGE_KEYS.QUIZ_REVIEW_DATA);
+      if (!raw) { setHasError(true); setIsLoading(false); return; }
+      const parsed = JSON.parse(raw);
+      if (!parsed.questions || !parsed.quizState || parsed.questions.length === 0) {
+        setHasError(true); setIsLoading(false); return;
       }
-
-      const parsedReviewData = JSON.parse(reviewDataStr);
-
-      if (
-        !parsedReviewData.questions ||
-        !parsedReviewData.quizState ||
-        parsedReviewData.questions.length === 0
-      ) {
-        setHasError(true);
-        setIsLoading(false);
-        return;
-      }
-
-      setReviewData(parsedReviewData);
+      setReviewData(parsed);
       setIsLoading(false);
-    } catch (error) {
-      console.error("Error initializing review:", error);
+    } catch {
       setHasError(true);
       setIsLoading(false);
     }
-  };
+  }, []);
 
   const redirectToHome = () => {
     sessionStorage.removeItem(STORAGE_KEYS.TRIVIA_QUESTIONS);
@@ -57,51 +36,31 @@ export default function QuizReview() {
     window.location.href = import.meta.env.BASE_URL;
   };
 
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
-      case "easy":
-        return "bg-green-100 text-green-800";
-      case "medium":
-        return "bg-yellow-100 text-yellow-800";
-      case "hard":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
+  const getDifficultyClass = (difficulty: string) => {
+    if (difficulty === "easy") return "difficulty-easy";
+    if (difficulty === "hard") return "difficulty-hard";
+    return "difficulty-medium";
   };
+
+  const spinStyle = { width: 44, height: 44, border: "3px solid var(--color-border)", borderTopColor: "var(--color-gold)", borderRadius: "50%", animation: "spin 0.8s linear infinite" };
 
   if (isLoading) {
     return (
-      <div className="max-w-4xl mx-auto">
-        <div className="flex flex-col items-center justify-center py-16">
-          <div className="relative">
-            <div className="w-12 h-12 border-4 border-indigo-200 rounded-full animate-spin"></div>
-            <div className="absolute top-0 left-0 w-12 h-12 border-4 border-indigo-600 rounded-full animate-spin border-t-transparent"></div>
-          </div>
-          <p className="mt-4 text-gray-600 text-center">
-            Loading quiz review...
-          </p>
-        </div>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "40vh", gap: "1rem" }}>
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+        <div style={spinStyle} />
+        <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "var(--color-text-dim)", letterSpacing: "0.1em" }}>LOADING REVIEW...</p>
       </div>
     );
   }
 
   if (hasError || !reviewData) {
     return (
-      <div className="max-w-4xl mx-auto text-center py-16">
-        <div className="text-red-500 text-6xl mb-4">⚠️</div>
-        <h3 className="text-xl font-semibold text-gray-800 mb-2">
-          No Quiz Data Found
-        </h3>
-        <p className="text-gray-600 mb-6">
-          No completed quiz was found. Please complete a quiz to see the review.
-        </p>
-        <button
-          onClick={redirectToHome}
-          className="inline-block px-6 py-3 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
-        >
-          Start New Quiz
-        </button>
+      <div style={{ textAlign: "center", padding: "4rem 1rem" }}>
+        <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>⚠️</div>
+        <h3 style={{ fontFamily: "var(--font-display)", fontSize: "2rem", letterSpacing: "0.04em", marginBottom: "0.5rem" }}>NO QUIZ DATA</h3>
+        <p style={{ color: "var(--color-text-dim)", marginBottom: "2rem" }}>Complete a quiz first to see the review.</p>
+        <button onClick={redirectToHome} className="btn-primary">START NEW QUIZ</button>
       </div>
     );
   }
@@ -109,144 +68,93 @@ export default function QuizReview() {
   const { questions, quizState, shuffledOptions } = reviewData;
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-        <div className="flex justify-between items-center mb-6">
+    <div style={{ maxWidth: 680, margin: "0 auto" }}>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+
+      <div className="card" style={{ marginBottom: "1.5rem" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1.25rem" }}>
           <div>
-            <h2 className="text-2xl font-bold text-gray-800">Quiz Review</h2>
-            <p className="text-gray-600">Review all questions and answers</p>
+            <p className="label" style={{ marginBottom: "0.4rem" }}>Review</p>
+            <h2 style={{ fontFamily: "var(--font-display)", fontSize: "2rem", letterSpacing: "0.04em", margin: 0 }}>QUIZ ANSWERS</h2>
           </div>
-          <div className="text-right">
-            <p className="text-sm text-gray-600">Final Score</p>
-            <p className="text-2xl font-bold text-indigo-600">
-              {quizState.score}/{quizState.userAnswers.length}
-            </p>
+          <div style={{ textAlign: "right" }}>
+            <p className="label">Final Score</p>
+            <p className="score-display" style={{ fontSize: "1.5rem", fontWeight: 700 }}>{quizState.score}/{quizState.userAnswers.length}</p>
           </div>
         </div>
-
-        <div className="flex gap-3">
-          <a
-            href={`${import.meta.env.BASE_URL}/quiz`}
-            className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          >
-            ← Back to Quiz
-          </a>
-          <button
-            onClick={redirectToHome}
-            className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          >
-            Start New Quiz
-          </button>
+        <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" as const }}>
+          <a href={`${import.meta.env.BASE_URL}/quiz`} className="btn-secondary">← Back to Results</a>
+          <button onClick={redirectToHome} className="btn-primary">PLAY AGAIN</button>
         </div>
       </div>
 
-      <div className="space-y-6">
+      <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
         {questions.map((question, index) => {
           const userAnswer = quizState.userAnswers[index];
           const isCorrect = userAnswer === question.correct_answer;
           const options = shuffledOptions[index];
 
           return (
-            <div key={index} className="bg-white rounded-lg shadow-lg p-6">
-              <div className="flex justify-between items-start mb-4">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <span className="text-lg font-semibold text-gray-800">
-                      Question {index + 1}
+            <div key={index} className="card">
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1rem" }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.4rem", flexWrap: "wrap" as const }}>
+                    <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "var(--color-text-dim)" }}>Q{index + 1}</span>
+                    <span className={getDifficultyClass(question.difficulty)} style={{ padding: "0.2rem 0.6rem", borderRadius: 999, fontFamily: "var(--font-mono)", fontSize: "0.6rem", letterSpacing: "0.1em", textTransform: "uppercase" as const }}>
+                      {question.difficulty}
                     </span>
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(
-                        question.difficulty
-                      )}`}
-                    >
-                      {question.difficulty.charAt(0).toUpperCase() +
-                        question.difficulty.slice(1)}
-                    </span>
+                    <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.65rem", color: "var(--color-text-dim)" }}>{question.category}</span>
                   </div>
-                  <p className="text-sm text-gray-600">{question.category}</p>
+                  <p style={{ fontWeight: 600, lineHeight: 1.5 }}>{question.question}</p>
                 </div>
-                <div className="flex items-center">
+                <div style={{ marginLeft: "1rem", flexShrink: 0 }}>
                   {isCorrect ? (
-                    <svg
-                      className="h-6 w-6 text-green-500"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
+                    <span style={{ fontFamily: "var(--font-mono)", fontWeight: 700, fontSize: "1.1rem", color: "var(--color-green)" }}>✓</span>
                   ) : (
-                    <svg
-                      className="h-6 w-6 text-red-500"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    </svg>
+                    <span style={{ fontFamily: "var(--font-mono)", fontWeight: 700, fontSize: "1.1rem", color: "var(--color-red)" }}>✗</span>
                   )}
                 </div>
               </div>
 
-              <h3 className="text-lg font-semibold text-gray-800 mb-4 leading-relaxed">
-                {question.question}
-              </h3>
-
-              <div className="space-y-2">
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
                 {options.map((option) => {
-                  let optionClass = "p-3 border rounded-lg text-sm";
-                  let optionLabel = "";
+                  const isCorrectOption = option === question.correct_answer;
+                  const isUserWrongAnswer = option === userAnswer && !isCorrect;
 
-                  if (option === question.correct_answer) {
-                    optionClass +=
-                      " border-green-500 bg-green-50 text-green-800";
-                    optionLabel = " ✓ Correct Answer";
-                  } else if (option === userAnswer && !isCorrect) {
-                    optionClass += " border-red-500 bg-red-50 text-red-800";
-                    optionLabel = " ✗ Your Answer";
-                  } else {
-                    optionClass += " border-gray-200 bg-gray-50 text-gray-600";
+                  let style: React.CSSProperties = {
+                    padding: "0.75rem 1rem",
+                    borderRadius: 8,
+                    fontSize: "0.9rem",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    border: "1px solid var(--color-border)",
+                    background: "transparent",
+                    color: "var(--color-text-dim)",
+                  };
+
+                  if (isCorrectOption) {
+                    style = { ...style, background: "var(--color-green-dim)", border: "1px solid var(--color-green)", color: "var(--color-green)" };
+                  } else if (isUserWrongAnswer) {
+                    style = { ...style, background: "var(--color-red-dim)", border: "1px solid var(--color-red)", color: "var(--color-red)" };
                   }
 
                   return (
-                    <div key={option} className={optionClass}>
+                    <div key={option} style={style}>
                       <span>{option}</span>
-                      <span className="font-medium">{optionLabel}</span>
+                      {isCorrectOption && <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.65rem", letterSpacing: "0.08em" }}>CORRECT</span>}
+                      {isUserWrongAnswer && <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.65rem", letterSpacing: "0.08em" }}>YOUR ANSWER</span>}
                     </div>
                   );
                 })}
               </div>
-
-              {!isCorrect && userAnswer && (
-                <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                  <p className="text-sm text-blue-800">
-                    <span className="font-medium">Explanation:</span> The
-                    correct answer is "{question.correct_answer}".
-                  </p>
-                </div>
-              )}
             </div>
           );
         })}
       </div>
 
-      <div className="bg-white rounded-lg shadow-lg p-6 mt-6 text-center">
-        <button
-          onClick={redirectToHome}
-          className="inline-block px-6 py-3 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        >
-          Start New Quiz
-        </button>
+      <div className="card" style={{ marginTop: "1.5rem", textAlign: "center" }}>
+        <button onClick={redirectToHome} className="btn-primary">START NEW QUIZ</button>
       </div>
     </div>
   );

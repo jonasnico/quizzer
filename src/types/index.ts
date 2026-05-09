@@ -1,3 +1,35 @@
+export interface Player {
+  id: string;
+  name: string;
+  score: number;
+  answeredCurrentQuestion: boolean;
+  isHost: boolean;
+}
+
+export type RoomPhase = "lobby" | "question" | "answer_revealed" | "ended";
+
+export interface MultiplayerGameState {
+  phase: RoomPhase;
+  currentQuestionIndex: number;
+  questions: TriviaQuestion[];
+  shuffledOptions: string[][];
+  players: Player[];
+  timeLeft: number;
+  answers: Record<string, string>;
+  hostId: string;
+  roomId: string;
+}
+
+export type ServerMessage =
+  | { type: "state"; state: MultiplayerGameState }
+  | { type: "error"; message: string };
+
+export type ClientMessage =
+  | { type: "join"; name: string }
+  | { type: "start"; questions: TriviaQuestion[]; shuffledOptions: string[][] }
+  | { type: "answer"; answer: string }
+  | { type: "next_question" };
+
 export interface TriviaQuestion {
   category: string;
   type: "multiple" | "boolean";

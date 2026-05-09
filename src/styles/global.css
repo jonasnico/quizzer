@@ -1,2 +1,270 @@
 @import "tailwindcss";
 @import "./slider.css";
+
+@layer base {
+  :root {
+    --color-bg: #070711;
+    --color-surface: #0f0f1e;
+    --color-surface-2: #16162b;
+    --color-border: #2a2a48;
+    --color-gold: #f5a623;
+    --color-gold-dim: rgba(245, 166, 35, 0.12);
+    --color-gold-glow: rgba(245, 166, 35, 0.35);
+    --color-cyan: #00d4e4;
+    --color-cyan-dim: rgba(0, 212, 228, 0.12);
+    --color-green: #00cf72;
+    --color-green-dim: rgba(0, 207, 114, 0.15);
+    --color-red: #ff2d55;
+    --color-red-dim: rgba(255, 45, 85, 0.15);
+    --color-text: #eeeeff;
+    --color-text-dim: #7878a0;
+    --font-display: "Bebas Neue", sans-serif;
+    --font-mono: "Space Mono", monospace;
+    --font-body: "Outfit", sans-serif;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html,
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-body);
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image: radial-gradient(
+      circle at 1px 1px,
+      rgba(255, 255, 255, 0.04) 1px,
+      transparent 0
+    );
+    background-size: 28px 28px;
+    pointer-events: none;
+    z-index: 0;
+  }
+}
+
+@layer components {
+  .card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 1.5rem;
+  }
+
+  .card-elevated {
+    background: var(--color-surface-2);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+  }
+
+  .gold-glow {
+    box-shadow: 0 0 20px var(--color-gold-glow), 0 0 40px var(--color-gold-dim);
+  }
+
+  .btn-primary {
+    background: var(--color-gold);
+    color: #000;
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    letter-spacing: 0.05em;
+    padding: 0.75rem 2rem;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: inline-block;
+    text-decoration: none;
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    background: #ffbe45;
+    box-shadow: 0 0 18px var(--color-gold-glow);
+    transform: translateY(-1px);
+  }
+
+  .btn-primary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--color-text-dim);
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    padding: 0.6rem 1.5rem;
+    border-radius: 8px;
+    border: 1px solid var(--color-border);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: inline-block;
+    text-decoration: none;
+  }
+
+  .btn-secondary:hover:not(:disabled) {
+    border-color: var(--color-text-dim);
+    color: var(--color-text);
+  }
+
+  .btn-secondary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-text-dim);
+  }
+
+  .score-display {
+    font-family: var(--font-mono);
+    color: var(--color-gold);
+  }
+
+  .progress-bar {
+    height: 3px;
+    background: var(--color-border);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--color-gold), var(--color-cyan));
+    border-radius: 99px;
+    transition: width 0.4s ease;
+  }
+
+  .difficulty-easy {
+    background: rgba(0, 207, 114, 0.15);
+    color: var(--color-green);
+    border: 1px solid rgba(0, 207, 114, 0.3);
+  }
+
+  .difficulty-medium {
+    background: rgba(245, 166, 35, 0.15);
+    color: var(--color-gold);
+    border: 1px solid rgba(245, 166, 35, 0.3);
+  }
+
+  .difficulty-hard {
+    background: rgba(255, 45, 85, 0.15);
+    color: var(--color-red);
+    border: 1px solid rgba(255, 45, 85, 0.3);
+  }
+
+  .answer-btn {
+    width: 100%;
+    text-align: left;
+    padding: 1rem 1.25rem;
+    background: var(--color-surface-2);
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .answer-btn:hover:not(:disabled) {
+    border-color: var(--color-gold);
+    background: var(--color-gold-dim);
+    color: var(--color-text);
+  }
+
+  .answer-btn-correct {
+    width: 100%;
+    text-align: left;
+    padding: 1rem 1.25rem;
+    background: var(--color-green-dim);
+    border: 1px solid var(--color-green);
+    border-radius: 10px;
+    color: var(--color-green);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    cursor: not-allowed;
+    box-shadow: 0 0 14px rgba(0, 207, 114, 0.2);
+  }
+
+  .answer-btn-wrong {
+    width: 100%;
+    text-align: left;
+    padding: 1rem 1.25rem;
+    background: var(--color-red-dim);
+    border: 1px solid var(--color-red);
+    border-radius: 10px;
+    color: var(--color-red);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    cursor: not-allowed;
+  }
+
+  .answer-btn-disabled {
+    width: 100%;
+    text-align: left;
+    padding: 1rem 1.25rem;
+    background: transparent;
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    color: var(--color-text-dim);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  .input-field {
+    width: 100%;
+    background: var(--color-surface-2);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.15s ease;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
+  .input-field:focus {
+    border-color: var(--color-gold);
+  }
+
+  .input-field option {
+    background: var(--color-surface-2);
+    color: var(--color-text);
+  }
+
+  .room-code {
+    font-family: var(--font-mono);
+    font-size: 2.5rem;
+    letter-spacing: 0.3em;
+    color: var(--color-gold);
+    text-align: center;
+  }
+
+  .player-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--color-surface-2);
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    padding: 0.35rem 0.9rem;
+    font-size: 0.85rem;
+  }
+}
+

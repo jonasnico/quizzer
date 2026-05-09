@@ -6,13 +6,18 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "partykit": "partykit",
+    "party:dev": "partykit dev",
+    "party:deploy": "partykit deploy"
   },
   "dependencies": {
     "@astrojs/react": "^5.0.2",
     "@tailwindcss/vite": "^4.2.2",
     "@types/react": "^19.2.14",
     "astro": "^6.1.6",
+    "partykit": "^0.0.115",
+    "partysocket": "^1.1.18",
     "react": "^19.2.4",
     "react-confetti-explosion": "^3.0.3",
     "react-dom": "^19.2.4",

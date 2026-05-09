@@ -6,6 +6,7 @@ export interface Props {
 }
 
 const { title = "Quizzer" } = Astro.props;
+const base = import.meta.env.BASE_URL;
 ---
 
 <!doctype html>
@@ -17,41 +18,54 @@ const { title = "Quizzer" } = Astro.props;
       content="Test your knowledge with this interactive quiz!"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
     <link
       rel="icon"
       type="image/svg+xml"
-      href={`${import.meta.env.BASE_URL}favicon.svg`}
+      href={`${base}favicon.svg`}
     />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
   </head>
-  <body class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-    <div class="container mx-auto px-4 py-8">
-      <header class="text-center mb-8">
-        <h1 class="text-4xl font-bold text-indigo-900 mb-2">
+  <body>
+    <div style="position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column;">
+      <header style="border-bottom: 1px solid var(--color-border); padding: 0 1.5rem;">
+        <div style="max-width: 900px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 64px;">
           <a
-            href={import.meta.env.BASE_URL}
-            class="hover:text-indigo-700 transition-colors cursor-pointer"
-            >🧠 Quizzer</a
+            href={base}
+            style="font-family: var(--font-display); font-size: 1.6rem; letter-spacing: 0.06em; color: var(--color-gold); text-decoration: none; display: flex; align-items: center; gap: 0.5rem;"
           >
-        </h1>
-        <p class="text-gray-600 text-lg">See if your brain has what it takes</p>
+            <span style="font-size: 1.2rem;">⚡</span> QUIZZER
+          </a>
+          <nav style="display: flex; gap: 0.5rem;">
+            <a href={base} class="btn-secondary" style="padding: 0.4rem 1rem; font-size: 0.8rem;">Solo</a>
+            <a href={`${base}/multiplayer`} class="btn-secondary" style="padding: 0.4rem 1rem; font-size: 0.8rem;">Multiplayer</a>
+          </nav>
+        </div>
       </header>
 
-      <main>
-        <slot />
+      <main style="flex: 1; padding: 2.5rem 1.5rem;">
+        <div style="max-width: 900px; margin: 0 auto;">
+          <slot />
+        </div>
       </main>
 
-      <footer class="text-center mt-16 py-8 text-gray-500">
-        <p>
-          Questions provided by <a
+      <footer style="border-top: 1px solid var(--color-border); padding: 1.25rem 1.5rem; text-align: center;">
+        <p style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--color-text-dim); letter-spacing: 0.08em;">
+          QUESTIONS FROM <a
             href="https://opentdb.com/"
             target="_blank"
             rel="noopener"
-            class="text-indigo-600 hover:underline">Open Trivia Database</a
+            style="color: var(--color-gold); text-decoration: none;">OPEN TRIVIA DB</a
           >
         </p>
       </footer>
     </div>
   </body>
 </html>
+
