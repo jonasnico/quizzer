@@ -28,7 +28,8 @@ export type ClientMessage =
   | { type: "join"; name: string }
   | { type: "start"; questions: TriviaQuestion[]; shuffledOptions: string[][] }
   | { type: "answer"; answer: string }
-  | { type: "next_question" };
+  | { type: "next_question" }
+  | { type: "play_again" };
 
 export interface TriviaQuestion {
   category: string;

@@ -52,7 +52,8 @@ export default function MultiplayerApp() {
       if (msg.type === "state") {
         setGameState(msg.state);
         if (msg.state.phase === "ended") setAppPhase("ended");
-        else if (msg.state.phase !== "lobby") setAppPhase("game");
+        else if (msg.state.phase === "lobby") setAppPhase("lobby");
+        else setAppPhase("game");
       } else if (msg.type === "error") {
         setError(msg.message);
       }
@@ -368,6 +369,16 @@ export default function MultiplayerApp() {
 
           <div style={{ display: "flex", gap: "0.75rem" }}>
             <button onClick={handleLeave} className="btn-secondary" style={{ flex: 1 }}>Leave Room</button>
+            {isHost && (
+              <button onClick={() => sendMessage({ type: "play_again" })} className="btn-primary" style={{ flex: 1 }}>
+                PLAY AGAIN
+              </button>
+            )}
+            {!isHost && (
+              <p style={{ display: "flex", alignItems: "center", fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "var(--color-text-dim)", letterSpacing: "0.08em" }}>
+                WAITING FOR HOST...
+              </p>
+            )}
           </div>
         </div>
       );

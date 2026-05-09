@@ -150,6 +150,23 @@ export default class QuizzerServer implements Party.Server {
       return;
     }
 
+    if (msg.type === "play_again" && sender.id === this.state.hostId) {
+      this.clearTimer();
+      this.state.phase = "lobby";
+      this.state.currentQuestionIndex = 0;
+      this.state.questions = [];
+      this.state.shuffledOptions = [];
+      this.state.answers = {};
+      this.state.timeLeft = QUESTION_TIME;
+      this.state.players = this.state.players.map((p) => ({
+        ...p,
+        score: 0,
+        answeredCurrentQuestion: false,
+      }));
+      this.broadcast();
+      return;
+    }
+
     if (msg.type === "next_question" && sender.id === this.state.hostId) {
       const isLast =
         this.state.currentQuestionIndex >= this.state.questions.length - 1;
