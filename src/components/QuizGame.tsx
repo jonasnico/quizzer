@@ -9,11 +9,9 @@ import type { TriviaQuestion, QuizState } from "../types";
 import { STORAGE_KEYS, SCORE_THRESHOLDS } from "../types";
 import { BUTTON_STYLES, RESULT_ICONS } from "../utils/styles";
 
-interface Toast {
-  id: number;
+interface Feedback {
   isCorrect: boolean;
-  question: TriviaQuestion;
-  selectedAnswer: string;
+  correctAnswer: string;
 }
 
 export default function QuizGame() {
@@ -22,7 +20,7 @@ export default function QuizGame() {
   const [shuffledOptions, setShuffledOptions] = useState<string[][]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
-  const [toasts, setToasts] = useState<Toast[]>([]);
+  const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [showResults, setShowResults] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
 
@@ -78,20 +76,20 @@ export default function QuizGame() {
     const newScore = quizState.score + (selectedAnswer === question.correct_answer ? 1 : 0);
     setQuizState({ ...quizState, score: newScore, userAnswers: newUserAnswers });
     const isCorrect = selectedAnswer === question.correct_answer;
-    const newToast: Toast = { id: Date.now(), isCorrect, question, selectedAnswer };
-    setToasts((prev) => [...prev, newToast]);
-    setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== newToast.id)), 3000);
+    setFeedback({ isCorrect, correctAnswer: question.correct_answer });
   };
 
-  const removeToast = (id: number) => setToasts((prev) => prev.filter((t) => t.id !== id));
+  const clearFeedback = () => setFeedback(null);
 
   const goToPreviousQuestion = () => {
     if (!quizState || quizState.currentQuestionIndex === 0) return;
+    setFeedback(null);
     setQuizState({ ...quizState, currentQuestionIndex: quizState.currentQuestionIndex - 1 });
   };
 
   const goToNextQuestion = () => {
     if (!quizState) return;
+    setFeedback(null);
     if (quizState.currentQuestionIndex < questions.length - 1) {
       setQuizState({ ...quizState, currentQuestionIndex: quizState.currentQuestionIndex + 1 });
     } else {
@@ -218,19 +216,6 @@ export default function QuizGame() {
         <div className="progress-bar"><div className="progress-fill" style={{ width: `${progressPercentage}%` }} /></div>
       </div>
 
-      <div style={{ position: "absolute", top: 100, right: 0, zIndex: 50, display: "flex", flexDirection: "column", gap: "0.5rem", maxWidth: 280 }}>
-        {toasts.map((toast) => (
-          <div key={toast.id} style={{ padding: "0.75rem 1rem", borderRadius: 10, borderLeft: `3px solid ${toast.isCorrect ? "var(--color-green)" : "var(--color-red)"}`, background: toast.isCorrect ? "var(--color-green-dim)" : "var(--color-red-dim)", display: "flex", alignItems: "flex-start", gap: "0.75rem" }}>
-            <span style={{ fontFamily: "var(--font-mono)", fontWeight: 700, color: toast.isCorrect ? "var(--color-green)" : "var(--color-red)", flexShrink: 0 }}>{toast.isCorrect ? "✓" : "✗"}</span>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <p style={{ fontWeight: 600, fontSize: "0.85rem", color: toast.isCorrect ? "var(--color-green)" : "var(--color-red)" }}>{toast.isCorrect ? "Correct!" : "Incorrect"}</p>
-              {!toast.isCorrect && <p style={{ fontSize: "0.75rem", color: "var(--color-text-dim)", marginTop: "0.2rem" }}>Answer: {toast.question.correct_answer}</p>}
-            </div>
-            <button onClick={() => removeToast(toast.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--color-text-dim)", fontSize: "1rem", flexShrink: 0 }}>×</button>
-          </div>
-        ))}
-      </div>
-
       <div className="card" style={{ marginBottom: "1rem" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1.25rem" }}>
           <span className={getDifficultyClass(currentQuestion.difficulty)} style={{ padding: "0.25rem 0.75rem", borderRadius: 999, fontFamily: "var(--font-mono)", fontSize: "0.65rem", letterSpacing: "0.1em", textTransform: "uppercase" as const }}>
@@ -247,6 +232,35 @@ export default function QuizGame() {
             </button>
           ))}
         </div>
+
+        {feedback && (
+          <div style={{
+            marginTop: "1rem",
+            padding: "0.85rem 1.1rem",
+            borderRadius: 10,
+            borderLeft: `4px solid ${feedback.isCorrect ? "var(--color-green)" : "var(--color-red)"}`,
+            background: feedback.isCorrect ? "var(--color-green-dim)" : "var(--color-red-dim)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "0.75rem",
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+              <span style={{ fontSize: "1.1rem" }}>{feedback.isCorrect ? "✅" : "❌"}</span>
+              <div>
+                <p style={{ fontWeight: 700, fontSize: "0.9rem", color: feedback.isCorrect ? "var(--color-green)" : "var(--color-red)" }}>
+                  {feedback.isCorrect ? "Correct!" : "Incorrect"}
+                </p>
+                {!feedback.isCorrect && (
+                  <p style={{ fontSize: "0.78rem", color: "var(--color-text-dim)", marginTop: "0.15rem" }}>
+                    Correct answer: <strong style={{ color: "var(--color-green)" }}>{feedback.correctAnswer}</strong>
+                  </p>
+                )}
+              </div>
+            </div>
+            <button onClick={clearFeedback} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--color-text-dim)", fontSize: "1.1rem", lineHeight: 1, padding: "0.25rem", flexShrink: 0 }}>×</button>
+          </div>
+        )}
       </div>
 
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
