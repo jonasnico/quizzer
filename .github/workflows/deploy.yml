@@ -18,17 +18,32 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout your repository using git
-        uses: actions/checkout@v6
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Install, build, and upload your site
-        uses: withastro/action@v6
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
         with:
-          path: .
+          version: 10.33.0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
           node-version: 22
-          package-manager: pnpm@latest
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build
+        run: pnpm build
         env:
           PUBLIC_PARTYKIT_HOST: ${{ vars.PUBLIC_PARTYKIT_HOST }}
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist/
 
   deploy:
     needs: build
