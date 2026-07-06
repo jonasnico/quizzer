@@ -24,8 +24,8 @@ importers:
         specifier: ^0.0.115
         version: 0.0.115
       partysocket:
-        specifier: ^1.2.0
-        version: 1.2.0(react@19.2.7)
+        specifier: ^1.3.0
+        version: 1.3.0(react@19.2.7)
       react:
         specifier: ^19.2.7
         version: 19.2.7
@@ -1748,8 +1748,8 @@ packages:
     resolution: {integrity: sha512-WHmJIZsAzRWrm1lrtU7wcl0tpD4rg2vgmn4+hXGPjU4mnXgFxyjVq2ZzO547xRXa1IbETOP6J9INl/ergR99bA==}
     hasBin: true
 
-  partysocket@1.2.0:
-    resolution: {integrity: sha512-xgXql4N0b3umN263lHkrZMvvtYC906h4YjY8l63LNcF0x1bfJmQtZLQGqNQWzFHAxLns/6h6/rjdLW4EdYqQwA==}
+  partysocket@1.3.0:
+    resolution: {integrity: sha512-1zToNyolZFK/7nuAw/K2bZrNzFqaZyRoCEkS+9vG6WSC5ikrN6qWRe96q6ImU51uptz2r+dAwSkwhJVdQi4LiA==}
     peerDependencies:
       react: '>=17'
     peerDependenciesMeta:
@@ -4040,7 +4040,7 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  partysocket@1.2.0(react@19.2.7):
+  partysocket@1.3.0(react@19.2.7):
     dependencies:
       event-target-polyfill: 0.0.4
     optionalDependencies:
